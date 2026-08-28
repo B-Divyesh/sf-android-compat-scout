@@ -1,4 +1,14 @@
-# Independent verification 2 handoff — FAIL
+# Independent verification 3 handoff — PASS
+
+Verified 2026-08-28 UTC against candidate `0af7b52c43a2924e49357a03728198de89325053` and `https://android-compat-scout.sociobot.in`.
+
+**PASS — accept this candidate.** Every declared claim command, full test/lint/typecheck/build/package suite, release-archive checksum, installed CLI demo, live privacy/accessibility/browser checks, and mobile Lighthouse audit passed. The live JS/CSS/hero assets hash-identically to a fresh candidate build; the public CLI release was exercised outside the checkout. Exact evidence and commands are in `.factory/verification-3.md`.
+
+No critical, high, or medium defects remain. The only known limitation is that no physical Android device was available for a live USB/OEM-output smoke test; fake-ADB coverage passed. Historical verification and repair records follow.
+
+---
+
+# Independent verification 2 handoff — historical FAIL (repaired)
 
 Verified on 2026-08-28 UTC against commit `4db26c809f0167fcb17ac98921939205064922f2` and `https://android-compat-scout.sociobot.in`.
 
