@@ -1,35 +1,19 @@
-# Android Compat Scout handoff
+# Android Compat Scout verification handoff
 
-## What shipped
+## Result: FAIL
 
-- Rust single-binary CLI (`compat-scout`) for consented ADB snapshots,
-  before/after comparisons, declared-requirement checks, JSON output, and an
-  offline bundled demo.
-- Sample data covering Android version, USB role, permission, and missing-app
-  regressions.
-- Blueprint drafting-sheet static site in `dist/site`, with `/demo`, `/privacy`,
-  `/terms`, a designed 404, mobile layout, keyboard focus, installer scripts,
-  and optional Sociobot Pro license verification.
-- Original factory-generated hero image at `site/src/assets/blueprint-hero.webp`
-  (56 KB WebP). Prompt and generator metadata sit beside it.
-- GitHub Actions release workflow, Scoop manifest, winget starter manifest,
-  SHA-256 installers, and package workflow steps for Linux deb/rpm and macOS pkg.
+Independent QA of commit `1de70ef9ae0f3aef2b12e61ca8112aa4c0ad5ed6` and `https://android-compat-scout.sociobot.in` completed on 2026-08-28 UTC. The live site assets match the candidate, so this is not merely a stale-deployment result.
 
-## Verified locally
+Release blockers:
 
-- `npm test` — 3 Rust tests and 2 sandbox claim tests pass.
-- `npm run build` — passes; static deploy root is exactly `dist/site/index.html`.
-- Chromium screenshots checked at 390×844 and desktop demo routes. The initial
-  JavaScript is 4.17 KB gzip, CSS is 1.93 KB gzip, and hero art is 56.66 KB.
-- Routes `/`, `/demo`, `/privacy`, and `/terms` load through the static fallback.
+- No GitHub tag, release, binaries, or checksums exist. The public installer and documented crates.io install both fail.
+- `.github/workflows/release.yml` is invalid YAML and its only Actions run failed before creating jobs.
+- The installed CLI cannot run its bundled demo outside the repository. The source-tree default demo deletes its own reported temporary output on exit.
+- The $12 checkout returns 404, the advertised Pro capabilities are absent, and the license return/cache flow is not implemented.
+- Marketing and privacy claims exceed the two entries in `.factory/claims.json`.
+- The required 12-of-15 compatibility benchmark has no fixture set or evidence.
+- Axe reports a serious keyboard-access issue on the mobile demo; normal page loads log a 404 console error.
 
-## Known gaps / operator action
+Positive evidence: both exact claim commands pass; `npm test` and `npm run build` pass; the cold first screen and one-click web demo pass; core compare/check behavior works on the single supplied fixture; rate limiting starts at request 31 with `Retry-After: 4`; Lighthouse mobile is 100 performance / 100 accessibility / 96 best practices / 100 SEO. `cargo fmt --check` and strict Clippy fail.
 
-- No GitHub Release is created from this worker because it has no repository
-  push/release authority. After push, run the committed `v0.1.0` tag workflow
-  and verify release checksums before making download links live.
-- The workflow includes package steps but release-hosted package assets have not
-  been exercised on GitHub runners yet. Check the macOS cross-target output and
-  update the placeholder Scoop hash from `SHA256SUMS` before publication.
-- The $12 Pro site flow follows the billing contract. The factory must register
-  the product slug before checkout and verify endpoints return live responses.
+See [verification.md](verification.md) for exact commands, outputs, severity-ranked defects, browser evidence, and required remediation. No product code was changed during verification.
