@@ -35,7 +35,7 @@ Repair target: `52d83c141dbc98d920e22455c0d3983661f12176`. Review source: `1396c
 
 ## Verification evidence
 
-- Every exact command in `.factory/claims.json` passed from clean clone `/tmp/android-compat-scout-polish2.LIizUg/repo` at `b9b752226bb4962a1c8ee8b384e7d27b9abb570f`: 16/16 claims.
+- Every exact command in `.factory/claims.json` passed from clean clone `/tmp/android-compat-scout-final.kQLFdm/repo` at `40f69a4cee542a71895a87481325ed68b75a748e`: 16/16 claims.
 - The full clean-clone suite passed at `/tmp/android-compat-scout-suite.iIylW9/repo`, commit `f8b73de3a2b5ddf1baa91a97838b0822b16d36cc`: `npm ci`, `npm test` (6 Rust and 16 Vitest tests), `npm run typecheck`, `npm run test:browser` (7 tests), `npm run build`, `cargo fmt --check`, `cargo clippy --all-targets -- -D warnings`, and `cargo package --allow-dirty`.
 - The final local and production browser suites pass 8/8 after adding the loaded-session offline case. They cover device-specific install copy, mobile first-screen fit, keyboard focus, real routes and metadata, all-store demo isolation, no downloads, same-origin requests, zero Axe violations on five routes at 390 and 1440 pixels, no console errors, and offline reset/exit.
 - `/opt/fleet/lib/verify-url.sh` recorded HTTP 200, 729 ms load, zero console errors, `lang=en`, one h1, a main landmark, no missing alt text, and no unlabeled buttons in [verify.json](evidence/polish-2/verify.json).

@@ -17,7 +17,7 @@ The product remains a Rust single-binary CLI with a static Vite site in `dist/si
 
 ## Verification
 
-Every exact `.factory/claims.json` command passed from `/tmp/android-compat-scout-polish2.LIizUg/repo` at clean-clone commit `b9b752226bb4962a1c8ee8b384e7d27b9abb570f`: 16/16.
+Every exact `.factory/claims.json` command passed from `/tmp/android-compat-scout-final.kQLFdm/repo` at clean-clone commit `40f69a4cee542a71895a87481325ed68b75a748e`: 16/16.
 
 The complete clean-clone suite passed from `/tmp/android-compat-scout-suite.iIylW9/repo` at `f8b73de3a2b5ddf1baa91a97838b0822b16d36cc`:
 
