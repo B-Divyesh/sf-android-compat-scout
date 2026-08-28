@@ -1,3 +1,42 @@
+# Polish 1 repair handoff — PASS
+
+## Completed repair
+
+Repaired every finding in `.factory/review-1.md` for release candidate `0af7b52c43a2924e49357a03728198de89325053`. The repair commit is `14028e659bb1a79f2a7caafdd2cb7ba9e2861b32`, pushed to `origin/main`.
+
+- The first screen now gives a runnable public installer command, not a source-checkout command. Its primary action opens isolated `/?demo=1`; demo mode has the persistent banner, Reset demo, and Start for real, while storing no browser data.
+- Added all required public-claim contracts and executable tests: downloaded release demo, public checksums, distribution assets/tap/Scoop/winget/unsigned workflow, CLI help/`--json`, and README demo location coverage.
+- Corrected the sample terminal's timestamped output path, jargon, audience terminology, slogan copy, and catalog description. `.factory/copy-audit.md` records the landing audit.
+- Added per-route metadata updates and a fully semantic, CSP-safe static 404 page. Every real page has a distinct title, canonical URL, description, and social metadata.
+- Kept the blueprint drafting-sheet visual system and static `dist/site` deployment / CLI installer artifact class.
+
+Detailed finding-by-finding evidence is in `.factory/polish-1.md`.
+
+## Verification
+
+From a separate clean clone at `/tmp/tmp.h3l48LDCFi/repo` of the repair commit, all passed:
+
+```sh
+npm ci
+npm test
+npm run typecheck
+npm run test:browser
+npm run build
+cargo fmt --check
+cargo clippy --all-targets -- -D warnings
+cargo package --allow-dirty
+```
+
+Every exact command in `.factory/claims.json` passed from that clone: `sample-report`, `redacted-export`, `installed-demo`, `local-installed-release`, `checksum-installers`, `release-download-checksums`, `release-distribution`, `benchmark-12-of-15`, `read-only-diagnosis`, `demo-storage-isolation`, and `cli-interface-options`.
+
+Deployed via the static work-order configuration as deployment `0134216f-2b51-4b27-aa3b-0318a653d09c`. Cold live verification at `https://android-compat-scout.sociobot.in` passed `verify-url.sh` (HTTP 200, 2056 ms, zero console errors, `lang=en`, one h1, main, and no missing alt text). Live mobile route/demo checks found zero third-party requests, zero serious/critical Axe findings, empty storage/cookies before and after demo reset/exit, correct route metadata, and HTTP 404 for an unknown path. Lighthouse mobile: Performance 100, Accessibility 100, SEO 100, LCP 1055 ms, CLS 0.
+
+## Known gap
+
+There are no unresolved review findings. A physical Android USB/OEM-output smoke test still requires hardware; fake-ADB redaction and command-sequencing coverage pass in this environment.
+
+---
+
 # Review 1 handoff — FAIL
 
 Reviewed the live site and commit `38965241cc3f2b85b8396a71d7b6622305a7f6a5` without changing product code. Wrote `.factory/review-1.md` and committed this review documentation only.
