@@ -72,16 +72,37 @@
   {
     "id": "release-download-checksums",
     "claim": "Release downloads include checksums.",
-    "where": "Landing facts, README",
+    "where": "README Install section",
     "test": "npm test -- --grep @claim:release-download-checksums",
     "sandbox": "fetch the public release; require an exact checksum entry for every installable asset, download each asset, and hash every file"
   },
   {
     "id": "release-distribution",
-    "claim": "The release provides the documented Windows, macOS, and Linux packages plus package-manager metadata.",
-    "where": "Landing platform fact and install choices, README Install and Develop sections",
+    "claim": "Downloads are available for Windows, macOS, and Linux, with the documented package-manager metadata.",
+    "where": "Landing install choices and mobile install note, README Install and Develop sections",
     "test": "npm test -- --grep @claim:release-distribution",
-    "sandbox": "GitHub release API; assert the complete asset matrix, every latest.json URL, tap formula, Scoop manifest, winget manifest, and unsigned workflow"
+    "sandbox": "GitHub release API; assert the complete asset matrix, every latest.json URL, tap formula, Scoop manifest, schema-shaped winget manifest set, and Windows release-workflow winget validation"
+  },
+  {
+    "id": "mit-license",
+    "claim": "The tool is free under the MIT License.",
+    "where": "Landing facts, README License section",
+    "test": "npm test -- --grep @claim:mit-license",
+    "sandbox": "inspect the shipped LICENSE for the MIT grant of permission free of charge and assert the published landing fact"
+  },
+  {
+    "id": "offline-bundled-demo",
+    "claim": "The bundled sample runs without an account or network after installation.",
+    "where": "Landing facts, README Try the bundled sample section",
+    "test": "npm test -- --grep @claim:offline-bundled-demo",
+    "sandbox": "download the public Linux archive, then run compat-scout demo in a fresh consumer directory under a seccomp network-syscall block and without account credentials"
+  },
+  {
+    "id": "retained-snapshot-fields",
+    "claim": "Snapshots contain app package names, Android version, and a redacted build fingerprint.",
+    "where": "Landing safety section, Privacy page, README Privacy and safety section",
+    "test": "npm test -- --grep @claim:retained-snapshot-fields",
+    "sandbox": "fake authorized ADB data; serialize a snapshot and assert the retained fields and redacted fingerprint"
   },
   {
     "id": "benchmark-12-of-15",

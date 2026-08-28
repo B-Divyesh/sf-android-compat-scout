@@ -23,6 +23,80 @@ const installableAssets = [
   'compat-scout.exe',
 ] as const;
 
+function flatYaml(file: string): Record<string, string> {
+  return Object.fromEntries(readFileSync(file, 'utf8').split('\n').flatMap((line) => {
+    const match = line.trim().match(/^([A-Za-z][A-Za-z0-9]+):\s*(.+)$/);
+    return match ? [[match[1], match[2]]] : [];
+  }));
+}
+
+function downloadPublicLinuxRelease(work: string) {
+  const asset = 'compat-scout-x86_64-unknown-linux-musl.tar.gz';
+  execFileSync('curl', ['-fsSL', `${releaseBase}/SHA256SUMS`, '-o', join(work, 'SHA256SUMS')]);
+  execFileSync('curl', ['-fsSL', `${releaseBase}/${asset}`, '-o', join(work, asset)]);
+  const sums = readFileSync(join(work, 'SHA256SUMS'), 'utf8');
+  const expected = sums.match(new RegExp(`^([a-f0-9]{64})  ${asset.replace(/[.]/g, '\\.')}$`, 'm'))?.[1];
+  expect(expected).toBeTruthy();
+  expect(createHash('sha256').update(readFileSync(join(work, asset))).digest('hex')).toBe(expected);
+  execFileSync('tar', ['-xzf', join(work, asset), '-C', work]);
+  return join(work, 'compat-scout');
+}
+
+function compileNoNetworkLauncher(work: string) {
+  const source = join(work, 'no-network.c');
+  const binary = join(work, 'no-network');
+  writeFileSync(source, `#include <errno.h>
+#include <stddef.h>
+#include <stdio.h>
+#include <unistd.h>
+#include <linux/filter.h>
+#include <linux/seccomp.h>
+#include <sys/prctl.h>
+#include <sys/syscall.h>
+
+#define DENY(number) BPF_JUMP(BPF_JMP | BPF_JEQ | BPF_K, number, 0, 1), BPF_STMT(BPF_RET | BPF_K, SECCOMP_RET_ERRNO | EPERM)
+
+int main(int argc, char **argv) {
+  if (argc < 2) return 64;
+  struct sock_filter filter[] = {
+    BPF_STMT(BPF_LD | BPF_W | BPF_ABS, offsetof(struct seccomp_data, nr)),
+#ifdef __NR_socket
+    DENY(__NR_socket),
+#endif
+#ifdef __NR_socketpair
+    DENY(__NR_socketpair),
+#endif
+#ifdef __NR_connect
+    DENY(__NR_connect),
+#endif
+#ifdef __NR_sendto
+    DENY(__NR_sendto),
+#endif
+#ifdef __NR_sendmsg
+    DENY(__NR_sendmsg),
+#endif
+#ifdef __NR_recvfrom
+    DENY(__NR_recvfrom),
+#endif
+#ifdef __NR_recvmsg
+    DENY(__NR_recvmsg),
+#endif
+    BPF_STMT(BPF_RET | BPF_K, SECCOMP_RET_ALLOW),
+  };
+  struct sock_fprog program = { .len = (unsigned short)(sizeof(filter) / sizeof(filter[0])), .filter = filter };
+  if (prctl(PR_SET_NO_NEW_PRIVS, 1, 0, 0, 0) || prctl(PR_SET_SECCOMP, SECCOMP_MODE_FILTER, &program)) {
+    perror("seccomp");
+    return 127;
+  }
+  execv(argv[1], argv + 1);
+  perror("execv");
+  return 127;
+}
+`);
+  execFileSync('cc', ['-O2', '-Wall', '-Werror', source, '-o', binary]);
+  return binary;
+}
+
 function fakeAdb(sandbox: string) {
   const adb = join(sandbox, 'fake-adb');
   writeFileSync(adb, `#!/bin/sh
@@ -161,18 +235,11 @@ describe('sandbox claims', () => {
 
   test('@claim:local-installed-release downloaded public Linux release runs its bundled demo from a consumer folder', () => {
     const work = mkdtempSync(join(tmpdir(), 'compat-scout-public-release-'));
-    const asset = 'compat-scout-x86_64-unknown-linux-musl.tar.gz';
     try {
-      execFileSync('curl', ['-fsSL', `${releaseBase}/SHA256SUMS`, '-o', join(work, 'SHA256SUMS')]);
-      execFileSync('curl', ['-fsSL', `${releaseBase}/${asset}`, '-o', join(work, asset)]);
-      const sums = readFileSync(join(work, 'SHA256SUMS'), 'utf8');
-      const expected = sums.match(new RegExp(`^([a-f0-9]{64})  ${asset.replace(/[.]/g, '\\.')}$`, 'm'))?.[1];
-      expect(expected).toBeTruthy();
-      expect(createHash('sha256').update(readFileSync(join(work, asset))).digest('hex')).toBe(expected);
-      execFileSync('tar', ['-xzf', join(work, asset), '-C', work]);
+      const command = downloadPublicLinuxRelease(work);
       const consumer = join(work, 'consumer');
       mkdirSync(consumer);
-      const output = execFileSync(join(work, 'compat-scout'), ['demo', '--json'], { cwd: consumer, encoding: 'utf8' });
+      const output = execFileSync(command, ['demo', '--json'], { cwd: consumer, encoding: 'utf8' });
       const result = JSON.parse(output);
       expect(existsSync(join(result.out_dir, 'compat-report.json'))).toBe(true);
       expect(existsSync(join(result.out_dir, 'compat-check.json'))).toBe(true);
@@ -181,6 +248,51 @@ describe('sandbox claims', () => {
       rmSync(work, { recursive: true, force: true });
     }
   }, 60_000);
+
+  test('@claim:offline-bundled-demo public Linux release runs its sample without network or account credentials', () => {
+    const work = mkdtempSync(join(tmpdir(), 'compat-scout-offline-release-'));
+    try {
+      const command = downloadPublicLinuxRelease(work);
+      const consumer = join(work, 'consumer');
+      const home = join(work, 'no-account-home');
+      mkdirSync(consumer);
+      mkdirSync(home);
+      const output = execFileSync(compileNoNetworkLauncher(work), [command, 'demo', '--json'], {
+        cwd: consumer,
+        encoding: 'utf8',
+        env: { PATH: process.env.PATH ?? '', HOME: home, TMPDIR: work, LANG: 'C.UTF-8' },
+      });
+      const result = JSON.parse(output);
+      expect(existsSync(join(result.out_dir, 'compat-report.json'))).toBe(true);
+      expect(existsSync(join(result.out_dir, 'compat-check.json'))).toBe(true);
+      rmSync(result.out_dir, { recursive: true, force: true });
+    } finally {
+      rmSync(work, { recursive: true, force: true });
+    }
+  }, 60_000);
+
+  test('@claim:mit-license the shipped license grants permission free of charge', () => {
+    const license = readFileSync(join(process.cwd(), 'LICENSE'), 'utf8');
+    const landing = readFileSync(join(process.cwd(), 'site', 'src', 'main.ts'), 'utf8');
+    expect(license).toContain('MIT License');
+    expect(license).toContain('Permission is hereby granted, free of charge');
+    expect(landing).toContain('Free under the MIT License');
+  });
+
+  test('@claim:retained-snapshot-fields serialized snapshots keep the documented fields and redact the fingerprint', () => {
+    const sandbox = mkdtempSync(join(tmpdir(), 'compat-scout-retained-fields-'));
+    const output = join(sandbox, 'snapshot.json');
+    try {
+      execFileSync('cargo', ['run', '--quiet', '--', 'snapshot', '--adb', fakeAdb(sandbox), '--out', output, '--json'], { cwd: process.cwd() });
+      const snapshot = JSON.parse(readFileSync(output, 'utf8'));
+      expect(snapshot.apps).toEqual(expect.arrayContaining([expect.objectContaining({ package: 'fixture.app' })]));
+      expect(snapshot.device.android_release).toBe('15');
+      expect(snapshot.device.build_fingerprint).toBe('fixture/…');
+      expect(snapshot.device.build_fingerprint).not.toContain('secret-build-value');
+    } finally {
+      rmSync(sandbox, { recursive: true, force: true });
+    }
+  });
 
   test('@claim:release-download-checksums every installable release asset matches SHA256SUMS', () => {
     const work = mkdtempSync(join(tmpdir(), 'compat-scout-release-checksum-'));
@@ -237,14 +349,37 @@ describe('sandbox claims', () => {
     });
     expect(JSON.parse(readFileSync(join(process.cwd(), 'scoop-bucket', 'android-compat-scout.json'), 'utf8'))).toEqual(scoopManifest);
     const wingetRoot = join(process.cwd(), 'winget', 'android-compat-scout', releaseVersion);
-    const wingetInstaller = readFileSync(join(wingetRoot, 'Sociobot.AndroidCompatScout.installer.yaml'), 'utf8');
-    expect(wingetInstaller).toContain(`PackageVersion: ${releaseVersion}`);
-    expect(wingetInstaller).toContain(`InstallerUrl: ${releaseBase}/compat-scout-x86_64-pc-windows-msvc.zip`);
-    expect(wingetInstaller).toContain(`InstallerSha256: ${publicSums.get('compat-scout-x86_64-pc-windows-msvc.zip')?.toUpperCase()}`);
-    for (const file of ['Sociobot.AndroidCompatScout.yaml', 'Sociobot.AndroidCompatScout.locale.en-US.yaml']) {
-      expect(readFileSync(join(wingetRoot, file), 'utf8')).toContain(`PackageVersion: ${releaseVersion}`);
-    }
+    const versionManifest = flatYaml(join(wingetRoot, 'Sociobot.AndroidCompatScout.yaml'));
+    const defaultLocaleManifest = flatYaml(join(wingetRoot, 'Sociobot.AndroidCompatScout.locale.en-US.yaml'));
+    const installerManifest = flatYaml(join(wingetRoot, 'Sociobot.AndroidCompatScout.installer.yaml'));
+    expect(versionManifest).toMatchObject({
+      PackageIdentifier: 'Sociobot.AndroidCompatScout',
+      PackageVersion: releaseVersion,
+      DefaultLocale: 'en-US',
+      ManifestType: 'version',
+      ManifestVersion: '1.6.0',
+    });
+    expect(defaultLocaleManifest).toMatchObject({
+      PackageIdentifier: 'Sociobot.AndroidCompatScout',
+      PackageVersion: releaseVersion,
+      PackageLocale: 'en-US',
+      Publisher: 'Sociobot',
+      PackageName: 'Android Compat Scout',
+      License: 'MIT',
+      ManifestType: 'defaultLocale',
+      ManifestVersion: '1.6.0',
+    });
+    expect(installerManifest).toMatchObject({
+      PackageIdentifier: 'Sociobot.AndroidCompatScout',
+      PackageVersion: releaseVersion,
+      InstallerType: 'zip',
+      InstallerUrl: `${releaseBase}/compat-scout-x86_64-pc-windows-msvc.zip`,
+      InstallerSha256: publicSums.get('compat-scout-x86_64-pc-windows-msvc.zip')?.toUpperCase(),
+      ManifestType: 'installer',
+      ManifestVersion: '1.6.0',
+    });
     const workflow = readFileSync(join(process.cwd(), '.github', 'workflows', 'release.yml'), 'utf8');
+    expect(workflow).toContain('winget validate --manifest $manifest');
     expect(workflow).toContain('pkgbuild --root');
     expect(workflow).not.toMatch(/codesign|signtool|WINDOWS_CERT_PFX|APPLE_CERTIFICATE/);
   }, 60_000);

@@ -1,6 +1,21 @@
-# Copy audit — polish 2
+# Copy audit — polish 3
 
 Whitespace-delimited counts cover every visitor-facing sentence, heading, label, image description, and terminal line. Code commands are listed but not judged as prose. No prose exceeds 22 words. No banned marketing word appears.
+
+## Metadata
+
+| Copy | Words | Result |
+| --- | ---: | --- |
+| Android Compat Scout — Find Android setup changes | 8 | pass; home title and social title |
+| Find Android setup changes after an update for a customized phone or vehicle dongle. | 14 | pass; home description and social description |
+| Demo — Android Compat Scout | 4 | pass; demo title |
+| See a sample Android upgrade report without connecting a phone or saving data. | 13 | pass; demo description |
+| Privacy — Android Compat Scout | 4 | pass; privacy title |
+| Learn which Android device facts Compat Scout reads and which identifiers it omits. | 13 | pass; privacy description |
+| Terms — Android Compat Scout | 4 | pass; terms title |
+| Read the safe-use terms for Android Compat Scout. | 8 | pass; terms description |
+| Page not found — Android Compat Scout | 6 | pass; 404 title |
+| This Android Compat Scout page does not exist. | 8 | pass; 404 description |
 
 ## Shared navigation and footer
 
@@ -19,15 +34,15 @@ Whitespace-delimited counts cover every visitor-facing sentence, heading, label,
 
 | Copy | Words | Result |
 | --- | ---: | --- |
-| Find what broke your Android setup | 6 | pass |
+| Find Android setup changes after an update | 7 | pass; `compare-json` describes grouping changes, not causal diagnosis |
 | For owners of customized Android phones and vehicle dongles after an update, it groups setup changes into a JSON report. | 20 | pass; `compare-json` |
 | Try it with sample data | 5 | pass |
 | See a sample upgrade report first. | 6 | pass |
-| Runs on Windows, macOS, or Linux | 6 | pass; `release-distribution` |
+| Free under the MIT License | 5 | pass; `mit-license` |
+| Run the bundled sample offline after installation | 7 | pass; `offline-bundled-demo` |
 | Leaves out serials and Wi-Fi names | 6 | pass; `redacted-export` |
-| Release downloads include checksums | 4 | pass; `release-download-checksums` |
 | Blueprint illustration of a phone, USB cable, and vehicle dongle used for compatibility inspection. | 14 | pass; image alt |
-| The report lists each changed Android setting and app requirement. | 10 | pass; `sample-report` |
+| The sample report lists changed Android settings and app requirements. | 10 | pass; `sample-report` |
 | Sample report / Android 14 → 15 | 7 | pass |
 | Sort changes by what to check | 6 | pass |
 | A report marks the update, permission, connection, and missing app separately. | 11 | pass; `sample-report` |
@@ -40,16 +55,15 @@ Whitespace-delimited counts cover every visitor-facing sentence, heading, label,
 | Compare Android setup snapshots | 4 | pass |
 | Capture a snapshot. | 3 | pass; `snapshot-json` |
 | Connect your phone and accept its USB-debugging prompt. | 8 | pass |
-| Declare the setup. | 3 | pass; `requirements-check` |
+| List what your setup needs. | 5 | pass; `requirements-check` |
 | List the local app, permissions, and device roles it needs. | 10 | pass |
 | Compare after changes. | 3 | pass; `compare-json` |
-| Save a report that names each meaningful difference. | 8 | pass |
-| It reports facts. | 3 | pass; `read-only-diagnosis` |
-| It does not change your phone. | 6 | pass; `read-only-diagnosis` |
+| Save a JSON report that lists each detected change. | 9 | pass; `compare-json` |
+| Compat Scout reads device information without changing it. | 8 | pass; `read-only-diagnosis` |
 | Compat Scout never roots a device, bypasses Android Auto restrictions, changes installed apps, or encourages driving interaction. | 17 | pass; `read-only-diagnosis` |
 | Snapshots omit serial numbers, Wi-Fi names, and MAC addresses. | 9 | pass; `redacted-export` |
-| Reports include package names and Android build details. | 8 | pass |
-| Store them as private files. | 5 | pass |
+| Snapshots contain app package names, Android version, and a redacted build fingerprint. | 11 | pass; `retained-snapshot-fields` |
+| Store snapshots and reports as private files. | 7 | pass |
 | Install the command-line tool | 4 | pass |
 | Install a verified release, then run the bundled sample from any folder. | 12 | pass; `local-installed-release` |
 | Choose a platform and processor | 5 | pass |
@@ -59,7 +73,7 @@ Whitespace-delimited counts cover every visitor-facing sentence, heading, label,
 | Linux · x64 | 2 | pass |
 | Linux · ARM64 | 2 | pass |
 | Open install options on a computer | 6 | pass; phone copy |
-| The command-line tool runs on Windows, macOS, or Linux. | 9 | pass; `release-distribution` |
+| Downloads are available for Windows, macOS, and Linux. | 8 | pass; `release-distribution` |
 | Linux / macOS installer | 4 | pass; `checksum-unix-installer` |
 | Windows installer | 2 | pass; `checksum-windows-installer` |
 | Release page (opens GitHub) | 4 | pass |
@@ -87,6 +101,9 @@ Whitespace-delimited counts cover every visitor-facing sentence, heading, label,
 | Enable USB debugging and approve the phone prompt before the command-line tool reads device facts. | 15 | pass |
 | What a snapshot omits | 4 | pass |
 | Exports exclude serial numbers, Wi-Fi names, and MAC addresses. | 9 | pass; `redacted-export` |
+| What a snapshot keeps | 5 | pass |
+| Snapshots contain app package names, Android version, and a redacted build fingerprint. | 11 | pass; `retained-snapshot-fields` |
+| Store snapshots and reports as private files. | 7 | pass |
 | Terms for Android Compat Scout | 5 | pass |
 | Inspect only devices you manage | 5 | pass |
 | Compat Scout compares information you are allowed to inspect. | 9 | pass; `read-only-diagnosis` |
@@ -104,7 +121,7 @@ The terminal copy already listed under the landing page is reused unchanged on t
 
 | Copy | Words | Result |
 | --- | ---: | --- |
-| Find what broke your Android setup. | 6 | pass |
+| Find Android setup changes after an update. | 7 | pass; `compare-json` describes grouping changes, not causal diagnosis |
 | Android Compat Scout is for owners of customized Android phones and vehicle dongles. | 13 | pass |
 | With USB-debugging approval, Compat Scout saves device facts as JSON. | 9 | pass; `snapshot-json` |
 | It checks what your setup needs and compares snapshots taken before and after a change. | 15 | pass; `requirements-check`, `compare-json` |
@@ -115,7 +132,7 @@ The terminal copy already listed under the landing page is reused unchanged on t
 | The release includes Linux archives, .deb, .rpm, macOS archives and .pkg files, a Windows zip, checksums, and latest.json metadata. | 19 | pass; `release-distribution` |
 | Homebrew users can install the published tap. | 7 | pass; `release-distribution` |
 | The release also includes a Scoop manifest. | 7 | pass; `release-distribution` |
-| Winget manifests under winget/ are ready for owner submission. | 9 | pass; `release-distribution` |
+| Winget manifests under winget/ are ready for owner submission and are checked with winget validate in the release workflow. | 19 | pass; `release-distribution` |
 | For local development only, install from the checkout with cargo install --path . | 13 | pass |
 | Capture and compare snapshots | 4 | pass |
 | Install Android platform-tools, enable USB debugging, and accept the phone's prompt. | 11 | pass |
@@ -126,6 +143,7 @@ The terminal copy already listed under the landing page is reused unchanged on t
 | Try the bundled sample | 4 | pass |
 | No phone is needed. | 4 | pass; `installed-demo` |
 | The binary embeds the invented snapshots and requirement file, so this works after installation from any directory. | 17 | pass; `installed-demo` |
+| The bundled sample runs without an account or network after installation. | 10 | pass; `offline-bundled-demo` |
 | It prints a persistent temporary output directory containing compat-report.json and compat-check.json. | 11 | pass; `installed-demo` |
 | The browser demo is at /?demo=1 (also /demo); it uses only sample data. | 13 | pass; `demo-storage-isolation` |
 | See .factory/demo.md for the sample files, reset behavior, and storage checks. | 12 | pass |
@@ -134,14 +152,15 @@ The terminal copy already listed under the landing page is reused unchanged on t
 | It invokes the public compare and check commands across OS, connectivity, app, and permission changes. | 15 | pass; `benchmark-12-of-15` |
 | Automated tests must detect at least 12 cases; they currently detect all 15. | 13 | pass; `benchmark-12-of-15` |
 | The collector intentionally avoids serial numbers, Wi-Fi names, and MAC addresses. | 11 | pass; `redacted-export` |
-| Reports can still reveal installed package names and Android build information, so store them carefully. | 15 | pass |
+| Snapshots contain app package names, Android version, and a redacted build fingerprint. | 11 | pass; `retained-snapshot-fields` |
+| Store snapshots and reports as private files. | 7 | pass |
 | Compat Scout does not root a device, bypass restrictions, or modify installed apps. | 13 | pass; `read-only-diagnosis` |
 | Do not inspect or operate a device while driving. | 9 | pass |
 | Requirements: Rust stable and Node 22+. | 6 | pass |
 | The static deployment output is dist/site. | 6 | pass |
 | The release workflow runs for v* tags and publishes the installable artifacts. | 12 | pass; `release-distribution` |
 | Do not publish from a workstation; push a tested tag and let GitHub Actions create the release. | 17 | pass |
-| MIT. | 1 | pass |
+| Free under the MIT License. | 5 | pass; `mit-license` |
 | See LICENSE. | 2 | pass |
 
 ## Terminology

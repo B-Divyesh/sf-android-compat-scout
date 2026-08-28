@@ -3,6 +3,7 @@ PackageVersion: 0.1.2
 PackageLocale: en-US
 Publisher: Sociobot
 PackageName: Android Compat Scout
+License: MIT
 ShortDescription: Private Android compatibility snapshots and regression reports.
-ManifestType: locale
+ManifestType: defaultLocale
 ManifestVersion: 1.6.0

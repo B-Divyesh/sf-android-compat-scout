@@ -9,6 +9,22 @@ permissions:
   contents: write
 
 jobs:
+  validate-winget:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Validate the complete winget manifest set
+        shell: pwsh
+        run: |
+          if ("${{ github.ref_type }}" -eq "tag") {
+            $version = "${{ github.ref_name }}".TrimStart("v")
+          } else {
+            $version = (Get-ChildItem winget/android-compat-scout -Directory | Sort-Object { [version]$_.Name } | Select-Object -Last 1).Name
+          }
+          $manifest = "winget/android-compat-scout/$version"
+          if (!(Test-Path $manifest)) { throw "Missing winget manifests for $version" }
+          winget validate --manifest $manifest
+
   build:
     name: ${{ matrix.target }}
     strategy:

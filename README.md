@@ -1,6 +1,6 @@
 # Android Compat Scout
 
-Find what broke your Android setup.
+Find Android setup changes after an update.
 
 Android Compat Scout is for owners of customized Android phones and vehicle dongles. With USB-debugging approval, Compat Scout saves device facts as JSON. It checks what your setup needs and compares snapshots taken before and after a change.
 
@@ -24,7 +24,7 @@ Homebrew users can install the published tap:
 brew install B-Divyesh/android-compat-scout/android-compat-scout
 ```
 
-The release also includes a Scoop manifest. Winget manifests under `winget/` are ready for owner submission.
+The release also includes a Scoop manifest. Winget manifests under `winget/` are ready for owner submission and are checked with `winget validate` in the release workflow.
 
 For local development only, install from the checkout with `cargo install --path .`.
 
@@ -55,7 +55,7 @@ No phone is needed:
 compat-scout demo
 ```
 
-The binary embeds the invented snapshots and requirement file, so this works after installation from any directory. It prints a persistent temporary output directory containing `compat-report.json` and `compat-check.json`. The browser demo is at `/?demo=1` (also `/demo`); it uses only sample data. See [.factory/demo.md](.factory/demo.md) for the sample files, reset behavior, and storage checks.
+The binary embeds the invented snapshots and requirement file, so this works after installation from any directory. The bundled sample runs without an account or network after installation. It prints a persistent temporary output directory containing `compat-report.json` and `compat-check.json`. The browser demo is at `/?demo=1` (also `/demo`); it uses only sample data. See [.factory/demo.md](.factory/demo.md) for the sample files, reset behavior, and storage checks.
 
 ## Compatibility benchmark
 
@@ -63,7 +63,7 @@ The bundled [test data](examples/compatibility-benchmark.json) covers 15 named p
 
 ## Privacy and safety
 
-The collector intentionally avoids serial numbers, Wi-Fi names, and MAC addresses. Reports can still reveal installed package names and Android build information, so store them carefully. Compat Scout does not root a device, bypass restrictions, or modify installed apps. Do not inspect or operate a device while driving.
+The collector intentionally avoids serial numbers, Wi-Fi names, and MAC addresses. Snapshots contain app package names, Android version, and a redacted build fingerprint. Store snapshots and reports as private files. Compat Scout does not root a device, bypass restrictions, or modify installed apps. Do not inspect or operate a device while driving.
 
 ## Develop and verify
 
@@ -82,4 +82,4 @@ The static deployment output is `dist/site`. The release workflow runs for `v*` 
 
 ## License
 
-MIT. See [LICENSE](LICENSE).
+Free under the MIT License. See [LICENSE](LICENSE).

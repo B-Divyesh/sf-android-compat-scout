@@ -7,7 +7,7 @@ test('desktop landing has no console errors and offers explicit release choices'
     if (message.type() === 'error') errors.push(message.text());
   });
   await page.goto('/');
-  await expect(page.getByRole('heading', { level: 1 })).toHaveText('Find what broke your Android setup');
+  await expect(page.getByRole('heading', { level: 1 })).toHaveText('Find Android setup changes after an update');
   await expect(page.locator('#platform-download')).toHaveText('Choose a platform and processor');
   await page.locator('#platform-download').click();
   await expect(page.locator('.download-options a')).toHaveCount(5);
@@ -31,7 +31,7 @@ test('Android, iOS, macOS, and Linux visitors never receive a guessed binary', a
     await page.goto('/');
     if (item.mobile) {
       await expect(page.getByText('Open install options on a computer', { exact: true }), item.name).toBeVisible();
-      await expect(page.getByText('The command-line tool runs on Windows, macOS, or Linux.', { exact: true }), item.name).toBeVisible();
+      await expect(page.getByText('Downloads are available for Windows, macOS, and Linux.', { exact: true }), item.name).toBeVisible();
       await expect(page.locator('.download-options'), item.name).toHaveCount(0);
       await expect(page.locator('a[href*="releases/latest/download"]'), item.name).toHaveCount(0);
     } else {
@@ -66,15 +66,28 @@ test('mobile demo is keyboard-focusable and has no serious axe findings', async 
   expect(results.violations.filter((violation) => ['serious', 'critical'].includes(violation.impact ?? ''))).toEqual([]);
 });
 
-test('demo has no third-party requests and navigation links meet touch-target height', async ({ page }) => {
+test('demo has no third-party requests and every persistent control meets the touch-target minimum', async ({ page }) => {
   const requests: string[] = [];
   page.on('request', (request) => requests.push(request.url()));
   await page.setViewportSize({ width: 390, height: 844 });
-  await page.goto('/demo');
+  for (const path of ['/', '/demo', '/privacy', '/terms', '/404.html']) {
+    await page.goto(path);
+    if (path === '/') await page.locator('#platform-download').click();
+    const undersized = await page.locator('a, button, summary').evaluateAll((controls) => controls
+      .filter((control) => {
+        const style = getComputedStyle(control);
+        const rect = control.getBoundingClientRect();
+        return style.display !== 'none' && style.visibility !== 'hidden' && rect.width > 0 && rect.height > 0;
+      })
+      .filter((control) => {
+        const rect = control.getBoundingClientRect();
+        return rect.width < 44 || rect.height < 44;
+      })
+      .map((control) => ({ text: control.textContent?.trim(), width: Math.round(control.getBoundingClientRect().width), height: Math.round(control.getBoundingClientRect().height) })));
+    expect(undersized, path).toEqual([]);
+  }
   const origin = new URL(page.url()).origin;
   expect(requests.every((url) => new URL(url).origin === origin)).toBe(true);
-  const heights = await page.locator('.topbar nav a, footer a, .install a').evaluateAll((links) => links.map((link) => Math.round(link.getBoundingClientRect().height)));
-  expect(heights.every((height) => height >= 44)).toBe(true);
 });
 
 test('@claim:demo-storage-isolation ?demo=1 preserves real browser data and saves no sample data', async ({ page }) => {
@@ -149,7 +162,7 @@ test('@claim:demo-storage-isolation ?demo=1 preserves real browser data and save
 
 test('each real route supplies its own canonical, description, and social metadata', async ({ page }) => {
   const expected = [
-    ['/', 'https://android-compat-scout.sociobot.in/', 'Find Android update changes that affect a customized phone or vehicle dongle.'],
+    ['/', 'https://android-compat-scout.sociobot.in/', 'Find Android setup changes after an update for a customized phone or vehicle dongle.'],
     ['/demo', 'https://android-compat-scout.sociobot.in/demo', 'See a sample Android upgrade report without connecting a phone or saving data.'],
     ['/privacy', 'https://android-compat-scout.sociobot.in/privacy', 'Learn which Android device facts Compat Scout reads and which identifiers it omits.'],
     ['/terms', 'https://android-compat-scout.sociobot.in/terms', 'Read the safe-use terms for Android Compat Scout.'],
@@ -190,6 +203,22 @@ test('an already loaded demo stays usable if the network drops', async ({ contex
   await page.getByRole('button', { name: 'Reset demo' }).click();
   await expect(page.getByText('Found 6 changes.')).toBeVisible();
   await page.getByRole('link', { name: 'Start for real' }).click();
-  await expect(page.getByRole('heading', { level: 1 })).toHaveText('Find what broke your Android setup');
+  await expect(page.getByRole('heading', { level: 1 })).toHaveText('Find Android setup changes after an update');
   await context.setOffline(false);
+});
+
+test('every route reflows at 390px and 200% text without page-level horizontal scrolling', async ({ page }) => {
+  for (const textScale of ['100%', '200%']) {
+    for (const path of ['/', '/?demo=1', '/privacy', '/terms', '/404.html']) {
+      await page.setViewportSize({ width: 390, height: 844 });
+      await page.goto(path);
+      await page.evaluate((scale) => { document.documentElement.style.fontSize = scale; }, textScale);
+      expect(await page.evaluate(() => document.documentElement.scrollWidth), `${path} at ${textScale}`).toBeLessThanOrEqual(390);
+    }
+    await page.setViewportSize({ width: 390, height: 844 });
+    await page.goto('/');
+    await page.evaluate((scale) => { document.documentElement.style.fontSize = scale; }, textScale);
+    await page.locator('#platform-download').click();
+    expect(await page.evaluate(() => document.documentElement.scrollWidth), `platform chooser at ${textScale}`).toBeLessThanOrEqual(390);
+  }
 });

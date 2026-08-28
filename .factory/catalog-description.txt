@@ -1,1 +1,1 @@
-Find Android setup changes with local snapshots and a command-line report.
+Find Android setup changes after an update with a local command-line report.

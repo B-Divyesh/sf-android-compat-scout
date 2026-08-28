@@ -4,10 +4,15 @@
 /* All persistent navigation and download links have finger-size targets. */
 .topbar nav{gap:.4rem}
 .topbar nav a,footer a,.install a{display:inline-flex;align-items:center;min-height:44px;padding:.25rem .4rem}
+.wordmark{display:inline-flex;align-items:center;min-height:44px}
+.skip-link{max-width:calc(100vw - 2rem);overflow-wrap:anywhere}
+.boundary h2{overflow-wrap:anywhere}
 pre:focus-visible{outline:3px solid var(--cyan);outline-offset:3px}
 
 /* Release choices are explicit because a browser cannot reliably detect CPU architecture. */
 .download-options{margin-top:1rem;border:1px solid var(--line);background:#f9f9f3}
+.install > *,.download-options,.download-options ul,.installer-links{min-width:0;max-width:100%}
+.download-options a,.installer-links a{overflow-wrap:anywhere}
 .download-options summary{display:flex;min-height:44px;align-items:center;padding:.65rem 1rem;color:var(--blue);font:700 .83rem var(--mono);cursor:pointer}
 .download-options summary::marker{color:var(--blue)}
 .download-options ul{display:grid;grid-template-columns:1fr 1fr;gap:.25rem 1rem;margin:0;padding:.5rem 1rem 1rem 2rem}
@@ -17,5 +22,6 @@ pre:focus-visible{outline:3px solid var(--cyan);outline-offset:3px}
 .installer-links{margin-top:1rem}
 .demo-banner{position:sticky;top:0;z-index:3}
 summary:focus-visible,h1:focus{outline:3px solid var(--cyan);outline-offset:3px}
-@media (max-width:700px){.download-options ul{grid-template-columns:1fr}}
+@media (max-width:700px){.download-options ul{grid-template-columns:1fr}.install pre{max-width:100%}h1{max-width:13ch;font-size:clamp(2.25rem,10vw,3.2rem)}}
 @media (max-width:700px){.topbar nav{gap:.1rem;font-size:.82rem}.topbar nav a{padding:.2rem}}
+@media (max-width:700px){.topbar{flex-wrap:wrap;gap:.25rem;padding:.4rem 0}.topbar nav{flex-wrap:wrap;max-width:100%}}
