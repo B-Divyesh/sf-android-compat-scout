@@ -16,6 +16,6 @@ pre:focus-visible{outline:3px solid var(--cyan);outline-offset:3px}
 .mobile-install-note strong{font:700 .83rem var(--mono)}
 .installer-links{margin-top:1rem}
 .demo-banner{position:sticky;top:0;z-index:3}
-summary:focus-visible{outline:3px solid var(--cyan);outline-offset:3px}
+summary:focus-visible,h1:focus{outline:3px solid var(--cyan);outline-offset:3px}
 @media (max-width:700px){.download-options ul{grid-template-columns:1fr}}
 @media (max-width:700px){.topbar nav{gap:.1rem;font-size:.82rem}.topbar nav a{padding:.2rem}}

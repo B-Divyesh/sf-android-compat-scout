@@ -71,7 +71,8 @@ test('demo has no third-party requests and navigation links meet touch-target he
   page.on('request', (request) => requests.push(request.url()));
   await page.setViewportSize({ width: 390, height: 844 });
   await page.goto('/demo');
-  expect(requests.every((url) => url.startsWith('http://127.0.0.1:4174/'))).toBe(true);
+  const origin = new URL(page.url()).origin;
+  expect(requests.every((url) => new URL(url).origin === origin)).toBe(true);
   const heights = await page.locator('.topbar nav a, footer a, .install a').evaluateAll((links) => links.map((link) => Math.round(link.getBoundingClientRect().height)));
   expect(heights.every((height) => height >= 44)).toBe(true);
 });
@@ -132,6 +133,7 @@ test('@claim:demo-storage-isolation ?demo=1 preserves real browser data and save
     caches: ['real-compat-scout'],
   };
   await page.goto('/?demo=1');
+  const origin = new URL(page.url()).origin;
   await expect(page.getByText('Demo — sample data, nothing is saved')).toBeVisible();
   expect(await realData()).toEqual(expected);
   await page.locator('.findings li').first().evaluate((item) => { item.textContent = 'altered sample'; });
@@ -142,7 +144,7 @@ test('@claim:demo-storage-isolation ?demo=1 preserves real browser data and save
   await expect(page).toHaveURL(/\/$/);
   expect(await realData()).toEqual(expected);
   expect(downloads).toEqual([]);
-  expect(requests.every((url) => new URL(url).origin === 'http://127.0.0.1:4174')).toBe(true);
+  expect(requests.every((url) => new URL(url).origin === origin)).toBe(true);
 });
 
 test('each real route supplies its own canonical, description, and social metadata', async ({ page }) => {
