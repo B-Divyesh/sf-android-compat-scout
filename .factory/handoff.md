@@ -1,3 +1,13 @@
+# Independent verification 2 handoff — FAIL
+
+Verified on 2026-08-28 UTC against commit `4db26c809f0167fcb17ac98921939205064922f2` and `https://android-compat-scout.sociobot.in`.
+
+Do **not** release/accept this candidate. Fresh-clone claims, tests, build, formatting/lint, package, installed CLI demo, public Linux release checksum/demo, live static-byte match, Playwright, Axe, and `verify-url.sh` passed. The candidate still fails the factory acceptance contract because the live “Demo — sample data, nothing is saved” assurance has no claim/storage-isolation proof; `B-Divyesh/homebrew-android-compat-scout` does not exist; the 15-case benchmark is synthetic private-function coverage rather than 15 representative CLI fixtures; and unknown deployed URLs return HTTP 200 rather than 404.
+
+Exact evidence, commands, passing scope, and repair requirements are in `.factory/verification-2.md`.
+
+---
+
 # Android Compat Scout repair handoff
 
 ## Repair scope
