@@ -1,4 +1,4 @@
-# Copy audit — polish 3
+# Copy audit — polish 4
 
 Whitespace-delimited counts cover every visitor-facing sentence, heading, label, image description, and terminal line. Code commands are listed but not judged as prose. No prose exceeds 22 words. No banned marketing word appears.
 
@@ -44,8 +44,8 @@ Whitespace-delimited counts cover every visitor-facing sentence, heading, label,
 | Blueprint illustration of a phone, USB cable, and vehicle dongle used for compatibility inspection. | 14 | pass; image alt |
 | The sample report lists changed Android settings and app requirements. | 10 | pass; `sample-report` |
 | Sample report / Android 14 → 15 | 7 | pass |
-| Sort changes by what to check | 6 | pass |
-| A report marks the update, permission, connection, and missing app separately. | 11 | pass; `sample-report` |
+| Sample report categories | 3 | pass |
+| A report marks update, permission, connectivity, and missing-component changes separately. | 10 | pass; `sample-report` |
 | compat-scout demo | 2 | command |
 | Demo report written to /tmp/compat-scout-demo-&lt;timestamp&gt; | 5 | pass; `installed-demo` |
 | Found 6 changes. | 3 | pass; `sample-six-changes` |
@@ -171,5 +171,6 @@ The terminal copy already listed under the landing page is reused unchanged on t
 | Detected difference | change |
 | Output explaining changes | report |
 | Declared app and device needs | requirements |
+| Device and network category | connectivity |
 | Bundled isolated example | demo |
 | Installed command | Compat Scout |

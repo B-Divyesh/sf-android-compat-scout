@@ -1,7 +1,7 @@
 [
   {
     "id": "sample-report",
-    "claim": "The bundled demo writes a report that separates update, permission, connection, and missing-app changes.",
+    "claim": "The bundled demo writes a report that separates update, permission, connectivity, and missing-component changes.",
     "where": "Landing preview, Demo page, README",
     "test": "npm test -- --grep @claim:sample-report",
     "sandbox": "fresh temporary directory; run compat-scout demo and inspect the saved JSON categories"

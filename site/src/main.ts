@@ -15,7 +15,7 @@ const pageMetadata: Record<Route, { title: string; description: string; path: st
 };
 
 const shell = (content: string) => `
-<header class="topbar"><a class="wordmark" href="/" data-route>ANDROID<br><strong>COMPAT SCOUT</strong></a><nav aria-label="Main navigation"><a href="/demo" data-route>Demo</a><a href="/#install">Install</a><a href="/privacy" data-route>Privacy</a></nav></header>
+<header class="topbar"><a class="wordmark" href="/" data-route>ANDROID<br><strong>COMPAT SCOUT</strong></a><nav aria-label="Main navigation"><a href="/demo" data-route>Demo</a><a href="/#install" data-anchor="install">Install</a><a href="/privacy" data-route>Privacy</a></nav></header>
 <div class="route-note" aria-live="polite"></div><main id="main" tabindex="-1">${content}</main>
 <footer><p>A command-line report for Android setup changes.</p><p><a href="/privacy" data-route>Privacy</a> · <a href="/terms" data-route>Terms</a> · Built by Param Factory · v0.1.3</p></footer>`;
 
@@ -28,7 +28,7 @@ const installChoices = () => /Android|iPhone|iPad|iPod/i.test(navigator.userAgen
 
 const home = () => shell(`
 <section class="hero"><div class="hero-copy"><h1>Find Android setup changes after an update</h1><p class="lede">For owners of customized Android phones and vehicle dongles after an update, it groups setup changes into a JSON report.</p><div class="hero-actions"><a class="button primary" href="/?demo=1" data-route>Try it with sample data</a><span>See a sample upgrade report first.</span></div><ul class="facts"><li>Free under the MIT License</li><li>Run the bundled sample offline after installation</li><li>Leaves out serials and Wi-Fi names</li></ul></div><figure class="hero-art"><img src="${hero}" width="1536" height="1024" fetchpriority="high" alt="Blueprint illustration of a phone, USB cable, and vehicle dongle used for compatibility inspection."><figcaption>The sample report lists changed Android settings and app requirements.</figcaption></figure></section>
-<section class="live-sheet" aria-labelledby="report-title"><div><p class="eyebrow">SAMPLE REPORT / ANDROID 14 → 15</p><h2 id="report-title">Sort changes by what to check</h2><p>A report marks the update, permission, connection, and missing app separately.</p></div>${terminal}</section>
+<section class="live-sheet" aria-labelledby="report-title"><div><p class="eyebrow">SAMPLE REPORT / ANDROID 14 → 15</p><h2 id="report-title">Sample report categories</h2><p>A report marks update, permission, connectivity, and missing-component changes separately.</p></div>${terminal}</section>
 <section class="method" aria-labelledby="how-title"><h2 id="how-title">Compare Android setup snapshots</h2><ol><li><strong>Capture a snapshot.</strong><span>Connect your phone and accept its USB-debugging prompt.</span></li><li><strong>List what your setup needs.</strong><span>List the local app, permissions, and device roles it needs.</span></li><li><strong>Compare after changes.</strong><span>Save a JSON report that lists each detected change.</span></li></ol></section>
 <section class="boundary"><h2>Compat Scout reads device information without changing it.</h2><p>Compat Scout never roots a device, bypasses Android Auto restrictions, changes installed apps, or encourages driving interaction.</p><p>Snapshots omit serial numbers, Wi-Fi names, and MAC addresses.</p><p>Snapshots contain app package names, Android version, and a redacted build fingerprint. Store snapshots and reports as private files.</p></section>
 <section id="install" class="install" aria-labelledby="install-title"><div><h2 id="install-title">Install the command-line tool</h2><p>Install a verified release, then run the bundled sample from any folder.</p></div><div><pre tabindex="0"><code>curl -fsSL https://android-compat-scout.sociobot.in/install.sh | sh
@@ -63,27 +63,100 @@ function setMetadata(current: Route) {
   put('meta[name="twitter:description"]', metadata.description);
 }
 
-function render() {
+type NavigationState = {
+  scrollX?: number | undefined;
+  scrollY?: number | undefined;
+  anchor?: string;
+};
+
+type RenderOptions = {
+  anchor?: string;
+  focusSelector?: string;
+  scroll?: 'anchor' | 'restore' | 'top';
+  scrollX?: number | undefined;
+  scrollY?: number | undefined;
+};
+
+function navigationState(state = history.state): NavigationState {
+  return state && typeof state === 'object' ? state as NavigationState : {};
+}
+
+function locationHash(): string | undefined {
+  if (!location.hash) return undefined;
+  try {
+    return decodeURIComponent(location.hash.slice(1)) || undefined;
+  } catch {
+    return undefined;
+  }
+}
+
+function saveCurrentPosition() {
+  history.replaceState({ ...navigationState(), scrollX: window.scrollX, scrollY: window.scrollY }, '', location.href);
+}
+
+function focusElement(element: HTMLElement | null) {
+  element?.setAttribute('tabindex', '-1');
+  element?.focus({ preventScroll: true });
+}
+
+function render(options: RenderOptions = {}) {
   const current = route();
   app.innerHTML = current === 'home' ? home() : current === 'demo' ? demo() : current === 'privacy' ? legal('privacy') : current === 'terms' ? legal('terms') : notFound();
   setMetadata(current);
-  document.querySelector('.route-note')!.textContent = document.title;
   const heading = document.querySelector<HTMLElement>('h1');
-  heading?.setAttribute('tabindex', '-1');
   bind();
-  requestAnimationFrame(() => heading?.focus({ preventScroll: true }));
+  requestAnimationFrame(() => {
+    if (options.scroll === 'top') window.scrollTo({ left: 0, top: 0 });
+    if (options.scroll === 'restore') window.scrollTo({ left: options.scrollX ?? 0, top: options.scrollY ?? 0 });
+
+    const anchor = options.anchor && document.getElementById(options.anchor);
+    if (options.scroll === 'anchor' && anchor) {
+      anchor.scrollIntoView({ block: 'start' });
+      const anchorHeading = anchor.matches('h1, h2, h3, h4, h5, h6')
+        ? anchor
+        : anchor.querySelector<HTMLElement>('h1, h2, h3, h4, h5, h6');
+      document.querySelector('.route-note')!.textContent = anchorHeading?.textContent?.trim() || anchor.textContent?.trim() || document.title;
+      focusElement(anchorHeading ?? anchor);
+      return;
+    }
+
+    document.querySelector('.route-note')!.textContent = document.title;
+    focusElement(options.focusSelector ? document.querySelector<HTMLElement>(options.focusSelector) : heading);
+  });
+}
+
+function navigate(url: string, anchor?: string) {
+  saveCurrentPosition();
+  const destination = new URL(url, location.origin);
+  history.pushState({ scrollX: 0, scrollY: 0, ...(anchor ? { anchor } : {}) }, '', `${destination.pathname}${destination.search}${destination.hash}`);
+  render(anchor ? { anchor, scroll: 'anchor' } : { scroll: 'top' });
 }
 
 function bind() {
   document.querySelectorAll<HTMLAnchorElement>('[data-route]').forEach((link) => link.addEventListener('click', (event) => {
+    if (event.defaultPrevented || event.button !== 0 || event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) return;
     event.preventDefault();
-    history.pushState({}, '', link.href);
-    render();
+    navigate(link.href);
+  }));
+  document.querySelectorAll<HTMLAnchorElement>('[data-anchor]').forEach((link) => link.addEventListener('click', (event) => {
+    if (event.defaultPrevented || event.button !== 0 || event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) return;
+    event.preventDefault();
+    const anchor = link.dataset.anchor;
+    if (anchor) navigate(link.href, anchor);
   }));
   document.querySelector('#reset-demo')?.addEventListener('click', () => {
-    render();
+    render({ focusSelector: '#reset-demo', scroll: 'restore', scrollX: window.scrollX, scrollY: window.scrollY });
   });
 }
 
-addEventListener('popstate', render);
-render();
+history.scrollRestoration = 'manual';
+const initialAnchor = locationHash();
+history.replaceState({ ...navigationState(), scrollX: window.scrollX, scrollY: window.scrollY, ...(initialAnchor ? { anchor: initialAnchor } : {}) }, '', location.href);
+addEventListener('popstate', (event) => {
+  const state = navigationState(event.state);
+  const anchor = state.anchor ?? locationHash();
+  render(anchor
+    ? { anchor, scroll: 'anchor' }
+    : { scroll: 'restore', scrollX: state.scrollX, scrollY: state.scrollY });
+});
+render(initialAnchor ? { anchor: initialAnchor, scroll: 'anchor' } : { scroll: 'top' });

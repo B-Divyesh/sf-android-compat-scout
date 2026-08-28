@@ -16,6 +16,53 @@ test('desktop landing has no console errors and offers explicit release choices'
   expect(errors).toEqual([]);
 });
 
+test('desktop first screen keeps the sample action, result, and all facts in view', async ({ page }) => {
+  await page.setViewportSize({ width: 1440, height: 900 });
+  await page.goto('/');
+  const required = [
+    page.getByRole('link', { name: 'Try it with sample data' }),
+    page.getByText('See a sample upgrade report first.', { exact: true }),
+    ...await page.locator('.facts li').all(),
+  ];
+  for (const item of required) {
+    const box = await item.boundingBox();
+    expect(box, await item.textContent() ?? 'required first-screen item').not.toBeNull();
+    expect((box?.y ?? 901) + (box?.height ?? 1), await item.textContent() ?? 'required first-screen item').toBeLessThanOrEqual(900);
+  }
+});
+
+test('header Install reaches and focuses the install heading from home and a subroute', async ({ page }) => {
+  for (const path of ['/', '/privacy']) {
+    await page.goto(path);
+    await page.getByRole('navigation', { name: 'Main navigation' }).getByRole('link', { name: 'Install' }).click();
+    await expect(page).toHaveURL(/\/#install$/);
+    const installTitle = page.locator('#install-title');
+    await expect(installTitle).toBeInViewport();
+    await expect(installTitle).toBeFocused();
+  }
+});
+
+test('Back and Forward restore route focus and saved scroll positions', async ({ page }) => {
+  await page.goto('/');
+  await page.evaluate(() => window.scrollTo(0, 1200));
+  await expect.poll(() => page.evaluate(() => window.scrollY)).toBeGreaterThan(1100);
+
+  await page.evaluate(() => document.querySelector<HTMLAnchorElement>('nav[aria-label="Main navigation"] a[href="/privacy"]')?.click());
+  await expect(page).toHaveURL(/\/privacy$/);
+  await expect(page.getByRole('heading', { level: 1 })).toBeFocused();
+  await expect.poll(() => page.evaluate(() => window.scrollY)).toBeLessThanOrEqual(1);
+
+  await page.goBack();
+  await expect(page).toHaveURL(/\/$/);
+  await expect.poll(() => page.evaluate(() => window.scrollY)).toBeGreaterThan(1100);
+  await expect(page.getByRole('heading', { level: 1 })).toBeFocused();
+
+  await page.goForward();
+  await expect(page).toHaveURL(/\/privacy$/);
+  await expect.poll(() => page.evaluate(() => window.scrollY)).toBeLessThanOrEqual(1);
+  await expect(page.getByRole('heading', { level: 1 })).toBeFocused();
+});
+
 test('Android, iOS, macOS, and Linux visitors never receive a guessed binary', async ({ browser }) => {
   const cases = [
     { name: 'Android', mobile: true, userAgent: 'Mozilla/5.0 (Linux; Android 15; Pixel 9) AppleWebKit/537.36 Chrome/128 Mobile Safari/537.36' },
