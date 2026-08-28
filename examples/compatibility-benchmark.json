@@ -1,20 +1,20 @@
 {
   "threshold": 12,
   "cases": [
-    {"id":"android-release-change","expected":"OS version"},
-    {"id":"sdk-change","expected":"OS version"},
-    {"id":"usb-role-change","expected":"Connectivity"},
-    {"id":"wifi-disabled","expected":"Connectivity"},
-    {"id":"wifi-presence-change","expected":"Connectivity"},
-    {"id":"required-app-removed","expected":"Missing component"},
-    {"id":"app-version-change","expected":"App version"},
-    {"id":"granted-permission-revoked","expected":"Permission"},
-    {"id":"minimum-sdk-not-met","expected":"OS version"},
-    {"id":"wifi-requirement-not-met","expected":"Connectivity"},
-    {"id":"usb-accessory-not-reported","expected":"Connectivity"},
-    {"id":"declared-app-missing","expected":"Missing component"},
-    {"id":"declared-minimum-version-not-met","expected":"App version"},
-    {"id":"declared-permission-not-granted","expected":"Permission"},
-    {"id":"second-required-app-missing","expected":"Missing component"}
+    {"id":"pixel-6-android-14-to-15","command":"compare","before":"benchmark/01-before.json","after":"benchmark/01-after.json","expected":"OS version"},
+    {"id":"galaxy-s22-sdk-level-change","command":"compare","before":"benchmark/02-before.json","after":"benchmark/02-after.json","expected":"OS version"},
+    {"id":"pixel-7-usb-dongle-role","command":"compare","before":"benchmark/03-before.json","after":"benchmark/03-after.json","expected":"Connectivity"},
+    {"id":"oneplus-11-wifi-disabled","command":"compare","before":"benchmark/04-before.json","after":"benchmark/04-after.json","expected":"Connectivity"},
+    {"id":"fairphone-5-wifi-availability","command":"compare","before":"benchmark/05-before.json","after":"benchmark/05-after.json","expected":"Connectivity"},
+    {"id":"pixel-8-wireless-bridge-removed","command":"compare","before":"benchmark/06-before.json","after":"benchmark/06-after.json","expected":"Missing component"},
+    {"id":"galaxy-a54-app-version","command":"compare","before":"benchmark/07-before.json","after":"benchmark/07-after.json","expected":"App version"},
+    {"id":"motorola-edge-location-permission","command":"compare","before":"benchmark/08-before.json","after":"benchmark/08-after.json","expected":"Permission"},
+    {"id":"sony-xperia-usb-role","command":"compare","before":"benchmark/09-before.json","after":"benchmark/09-after.json","expected":"Connectivity"},
+    {"id":"nothing-phone-app-removed","command":"compare","before":"benchmark/10-before.json","after":"benchmark/10-after.json","expected":"Missing component"},
+    {"id":"pixel-6-minimum-sdk","command":"check","snapshot":"benchmark/11-snapshot.json","requirements":"benchmark/11-requirements.json","expected":"OS version"},
+    {"id":"galaxy-s22-wifi-required","command":"check","snapshot":"benchmark/12-snapshot.json","requirements":"benchmark/12-requirements.json","expected":"Connectivity"},
+    {"id":"oneplus-11-accessory-role","command":"check","snapshot":"benchmark/13-snapshot.json","requirements":"benchmark/13-requirements.json","expected":"Connectivity"},
+    {"id":"fairphone-5-required-app","command":"check","snapshot":"benchmark/14-snapshot.json","requirements":"benchmark/14-requirements.json","expected":"Missing component"},
+    {"id":"pixel-8-required-permission","command":"check","snapshot":"benchmark/15-snapshot.json","requirements":"benchmark/15-requirements.json","expected":"Permission"}
   ]
 }

@@ -1,0 +1,1 @@
+{"name":"Maps setup","min_sdk":null,"apps":[{"package":"in.sociobot.maps","min_version":"1.0","permissions":["android.permission.ACCESS_FINE_LOCATION"]}],"needs_wifi":false,"needs_usb_accessory":false}

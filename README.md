@@ -16,7 +16,15 @@ curl -fsSL https://android-compat-scout.sociobot.in/install.sh | sh
 irm https://android-compat-scout.sociobot.in/install.ps1 | iex
 ```
 
-Both scripts check the downloaded binary against the release `SHA256SUMS` file before installation. macOS and Windows builds are unsigned. On macOS, use right-click → Open after downloading the package. The release includes Linux archives, `.deb`, `.rpm`, macOS archives and `.pkg` files, a Windows zip, checksums, and `latest.json` metadata. The release also includes a Homebrew formula and a Scoop manifest; winget manifests under `winget/` are ready for owner submission.
+Both scripts check the downloaded binary against the release `SHA256SUMS` file before installation. macOS and Windows builds are unsigned. On macOS, use right-click → Open after downloading the package. The release includes Linux archives, `.deb`, `.rpm`, macOS archives and `.pkg` files, a Windows zip, checksums, and `latest.json` metadata.
+
+Homebrew users can install the published tap:
+
+```sh
+brew install B-Divyesh/android-compat-scout/android-compat-scout
+```
+
+The release also includes a Scoop manifest; winget manifests under `winget/` are ready for owner submission.
 
 For local development only, install from the checkout with `cargo install --path .`.
 
@@ -51,7 +59,7 @@ The binary embeds the invented snapshots and requirement file, so this works aft
 
 ## Compatibility benchmark
 
-The bundled [15-case fixture](examples/compatibility-benchmark.json) exercises OS, connectivity, app, and permission changes. The regression suite requires at least 12 detected cases and currently verifies all 15.
+The bundled [15-case fixture](examples/compatibility-benchmark.json) ships redacted inputs for named phone and setup scenarios. It invokes the public `compare` and `check` commands across OS, connectivity, app, and permission changes. The regression suite requires at least 12 detected cases and currently verifies all 15.
 
 ## Privacy and safety
 

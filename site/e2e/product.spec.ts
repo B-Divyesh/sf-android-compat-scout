@@ -32,3 +32,18 @@ test('demo has no third-party requests and navigation links meet touch-target he
   const heights = await page.locator('.topbar nav a, footer a, .install a').evaluateAll((links) => links.map((link) => Math.round(link.getBoundingClientRect().height)));
   expect(heights.every((height) => height >= 44)).toBe(true);
 });
+
+test('@claim:demo-storage-isolation demo does not persist sample or real data', async ({ page }) => {
+  await page.goto('/demo');
+  const storageKeys = () => page.evaluate(() => ({
+    local: Object.keys(localStorage),
+    session: Object.keys(sessionStorage),
+  }));
+  await expect(page.getByText('Demo — sample data, nothing is saved')).toBeVisible();
+  expect(await storageKeys()).toEqual({ local: [], session: [] });
+  await page.getByRole('button', { name: 'Reset demo' }).click();
+  expect(await storageKeys()).toEqual({ local: [], session: [] });
+  await page.getByRole('link', { name: 'Start for real' }).click();
+  await expect(page).toHaveURL(/\/$/);
+  expect(await storageKeys()).toEqual({ local: [], session: [] });
+});

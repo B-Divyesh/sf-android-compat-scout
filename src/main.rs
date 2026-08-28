@@ -540,19 +540,6 @@ fn emit<T: Serialize>(json: bool, text: &str, value: &T) -> Result<()> {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use serde::Deserialize;
-
-    #[derive(Deserialize)]
-    struct Benchmark {
-        threshold: usize,
-        cases: Vec<BenchmarkCase>,
-    }
-
-    #[derive(Deserialize)]
-    struct BenchmarkCase {
-        id: String,
-        expected: String,
-    }
 
     #[test]
     fn detects_demo_regressions() {
@@ -649,108 +636,5 @@ esac
             .path();
         assert!(newest.join("compat-report.json").is_file());
         fs::remove_dir_all(newest).unwrap();
-    }
-
-    #[test]
-    fn compatibility_benchmark_detects_12_of_15_cases() {
-        let benchmark: Benchmark =
-            serde_json::from_str(include_str!("../examples/compatibility-benchmark.json")).unwrap();
-        let before: Snapshot = serde_json::from_str(DEMO_BEFORE).unwrap();
-        let requirements: RequirementFile = serde_json::from_str(DEMO_REQUIREMENTS).unwrap();
-        let detected = benchmark
-            .cases
-            .iter()
-            .filter(|case| benchmark_case_detected(case, &before, &requirements))
-            .count();
-
-        assert_eq!(benchmark.cases.len(), 15);
-        assert!(
-            detected >= benchmark.threshold,
-            "detected {detected}/15 cases"
-        );
-    }
-
-    fn benchmark_case_detected(
-        case: &BenchmarkCase,
-        before: &Snapshot,
-        requirements: &RequirementFile,
-    ) -> bool {
-        let mut after = before.clone();
-        let mut declared = requirements.clone();
-        let findings = match case.id.as_str() {
-            "android-release-change" => {
-                after.device.android_release = "99".into();
-                compare(before, &after, Path::new("before"), Path::new("after")).findings
-            }
-            "sdk-change" => {
-                after.device.sdk = "99".into();
-                compare(before, &after, Path::new("before"), Path::new("after")).findings
-            }
-            "usb-role-change" => {
-                after.connectivity.usb_mode = "none".into();
-                compare(before, &after, Path::new("before"), Path::new("after")).findings
-            }
-            "wifi-disabled" => {
-                after.connectivity.wifi_state = "disabled".into();
-                compare(before, &after, Path::new("before"), Path::new("after")).findings
-            }
-            "wifi-presence-change" => {
-                after.connectivity.wifi_ssid_present = !after.connectivity.wifi_ssid_present;
-                compare(before, &after, Path::new("before"), Path::new("after")).findings
-            }
-            "required-app-removed" => {
-                after.apps.remove(0);
-                compare(before, &after, Path::new("before"), Path::new("after")).findings
-            }
-            "app-version-change" => {
-                after.apps[0].version = "99.0".into();
-                compare(before, &after, Path::new("before"), Path::new("after")).findings
-            }
-            "granted-permission-revoked" => {
-                after.apps[0].permissions.insert(
-                    "android.permission.ACCESS_FINE_LOCATION".into(),
-                    "denied".into(),
-                );
-                compare(before, &after, Path::new("before"), Path::new("after")).findings
-            }
-            "minimum-sdk-not-met" => {
-                after.device.sdk = "1".into();
-                check(&after, &declared, Path::new("after")).findings
-            }
-            "wifi-requirement-not-met" => {
-                after.connectivity.wifi_state = "disabled".into();
-                check(&after, &declared, Path::new("after")).findings
-            }
-            "usb-accessory-not-reported" => {
-                after.connectivity.usb_mode = "not reported".into();
-                check(&after, &declared, Path::new("after")).findings
-            }
-            "declared-app-missing" => {
-                after.apps.clear();
-                check(&after, &declared, Path::new("after")).findings
-            }
-            "declared-minimum-version-not-met" => {
-                declared.apps[0].min_version = Some("999.0".into());
-                check(&after, &declared, Path::new("after")).findings
-            }
-            "declared-permission-not-granted" => {
-                declared.apps[0]
-                    .permissions
-                    .push("android.permission.CAMERA".into());
-                check(&after, &declared, Path::new("after")).findings
-            }
-            "second-required-app-missing" => {
-                declared.apps.push(AppRequirement {
-                    package: "example.missing".into(),
-                    min_version: None,
-                    permissions: vec![],
-                });
-                check(&after, &declared, Path::new("after")).findings
-            }
-            _ => return false,
-        };
-        findings
-            .iter()
-            .any(|finding| finding.category == case.expected)
     }
 }

@@ -54,3 +54,69 @@ Deployment completed through the factory static work-order helper on 2026-08-28 
 ## Known limits
 
 No physical Android device was available in this worker. The ADB collector is covered with a fake executable for command sequencing and redaction; live USB authorization and OEM-specific output still need device smoke testing after release.
+
+---
+
+# Verification-2 repair handoff
+
+## Scope repaired
+
+This repair addresses every finding recorded in `.factory/verification-2.md`
+for candidate `4db26c809f0167fcb17ac98921939205064922f2`.
+
+- Added the missing `demo-storage-isolation` claim. Its Playwright test starts
+  at `/demo`, confirms the banner, runs Reset demo, chooses Start for real,
+  and asserts that both localStorage and sessionStorage remain empty throughout.
+  `.factory/demo.md` now accurately documents that the browser demo uses no
+  storage namespace and never reads or writes real data.
+- Created `B-Divyesh/homebrew-android-compat-scout` as a public tap and
+  published `Formula/android-compat-scout.rb` for release `v0.1.2`.
+  The README now gives the exact `brew install
+  B-Divyesh/android-compat-scout/android-compat-scout` command.
+- Replaced the synthetic private-function benchmark with 15 shipped, redacted
+  fixture cases under `examples/benchmark/`. The public compiled binary runs
+  ten `compare` cases and five `check` cases in `tests/cli_benchmark.rs`; it
+  detected all 15 expected categories, exceeding the required 12/15.
+- Made the tagged redaction claim run the fake ADB collector and inspect its
+  serialized output; made the installed-demo claim use `cargo install` and an
+  empty consumer directory; made the installer claim execute the Unix
+  installer against both matching and deliberately bad checksums before
+  checking the target path.
+- Removed the broad static-site navigation fallback. `/demo`, `/privacy`, and
+  `/terms` explicitly rewrite to the SPA shell; unknown paths now flow through
+  the configured 404 response override with status 404. A configuration
+  regression test asserts this exact routing policy.
+
+## Verification evidence — 2026-08-28 UTC
+
+Fresh clean install: `npm ci` completed with 0 vulnerabilities. The following
+all passed:
+
+```text
+npm test
+npm run typecheck
+npm run test:browser
+npm run build
+cargo fmt --check
+cargo clippy --all-targets -- -D warnings
+cargo package --allow-dirty
+```
+
+Every command named by `.factory/claims.json` also passed exactly:
+`sample-report`, `redacted-export`, `installed-demo`, `checksum-installers`,
+`benchmark-12-of-15`, `read-only-diagnosis`, and `demo-storage-isolation`.
+The browser suite covers desktop plus 390×844 mobile, keyboard route focus,
+demo storage isolation, local-only demo requests, touch targets, and Axe
+serious/critical findings (zero). Production build remains 8.00 KB raw / 3.37
+KB gzip JavaScript, 5.99 KB raw / 1.97 KB gzip CSS, and 56.66 KB hero WebP.
+
+## Deployment and remaining limit
+
+The deployment class remains static `dist/site` plus the existing CLI release;
+no infra, DNS, billing, or product behavior was changed. After the repair
+commit is pushed, verify the deployed `/definitely-missing` endpoint returns
+404 and run `verify-url.sh` against the production URL before accepting the
+repair.
+
+No physical Android device was available. Live USB authorization and OEM
+output remain the only known manual smoke test.

@@ -11,7 +11,7 @@
     "claim": "Collected exports omit serial, Wi-Fi name, and MAC data.",
     "where": "Landing privacy facts, README",
     "test": "npm test -- --grep @claim:redacted-export",
-    "sandbox": "fake ADB collector; inspect the serialized snapshot for sensitive values"
+    "sandbox": "fake ADB collector; run snapshot and inspect the serialized output for sensitive values"
   },
   {
     "id": "installed-demo",
@@ -25,14 +25,14 @@
     "claim": "The Windows and Unix installers check SHA-256 before placing a binary on PATH.",
     "where": "Landing install section, README",
     "test": "npm test -- --grep @claim:checksum-installers",
-    "sandbox": "inspect both shipped installer scripts for their checksum validation paths"
+    "sandbox": "mock release download; run the Unix installer with matching and mismatching SHA-256 data before checking its install location"
   },
   {
     "id": "benchmark-12-of-15",
     "claim": "The compatibility benchmark differentiates at least 12 of 15 declared cases.",
     "where": "README",
     "test": "npm test -- --grep @claim:benchmark-12-of-15",
-    "sandbox": "run the bundled 15-case fixture benchmark"
+    "sandbox": "run public compare and check commands against the shipped 15-case fixture set"
   },
   {
     "id": "read-only-diagnosis",
@@ -40,5 +40,12 @@
     "where": "Landing safety section, README",
     "test": "npm test -- --grep @claim:read-only-diagnosis",
     "sandbox": "inspect the collector command allow-list for read-only ADB operations"
+  },
+  {
+    "id": "demo-storage-isolation",
+    "claim": "Demo — sample data, nothing is saved.",
+    "where": "Demo banner, .factory/demo.md",
+    "test": "npm test -- --grep @claim:demo-storage-isolation",
+    "sandbox": "fresh browser context at /demo; reset and leave the demo while asserting no real or demo storage is persisted"
   }
 ]
