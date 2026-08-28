@@ -379,7 +379,9 @@ describe('sandbox claims', () => {
       ManifestVersion: '1.6.0',
     });
     const workflow = readFileSync(join(process.cwd(), '.github', 'workflows', 'release.yml'), 'utf8');
+    const validationWorkflow = readFileSync(join(process.cwd(), '.github', 'workflows', 'winget-validate.yml'), 'utf8');
     expect(workflow).toContain('winget validate --manifest $manifest');
+    expect(validationWorkflow).toContain('winget validate --manifest $_.FullName');
     expect(workflow).toContain('pkgbuild --root');
     expect(workflow).not.toMatch(/codesign|signtool|WINDOWS_CERT_PFX|APPLE_CERTIFICATE/);
   }, 60_000);

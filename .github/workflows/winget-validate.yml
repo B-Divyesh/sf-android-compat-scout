@@ -1,0 +1,25 @@
+name: validate winget manifests
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'winget/**'
+      - '.github/workflows/winget-validate.yml'
+  pull_request:
+    paths:
+      - 'winget/**'
+      - '.github/workflows/winget-validate.yml'
+  workflow_dispatch:
+
+jobs:
+  validate:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Validate every submitted winget manifest set
+        shell: pwsh
+        run: |
+          Get-ChildItem winget/android-compat-scout -Directory | ForEach-Object {
+            winget validate --manifest $_.FullName
+          }
