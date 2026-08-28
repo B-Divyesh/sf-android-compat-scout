@@ -165,3 +165,19 @@ test('each real route supplies its own canonical, description, and social metada
   await expect(page.getByRole('contentinfo').getByRole('link', { name: 'Privacy' })).toHaveAttribute('href', '/privacy');
   await expect(page.getByRole('contentinfo').getByRole('link', { name: 'Terms' })).toHaveAttribute('href', '/terms');
 });
+
+test('every route has no automated accessibility violations at mobile and desktop sizes', async ({ page }) => {
+  const errors: string[] = [];
+  page.on('console', (message) => {
+    if (message.type() === 'error') errors.push(message.text());
+  });
+  for (const viewport of [{ width: 390, height: 844 }, { width: 1440, height: 900 }]) {
+    await page.setViewportSize(viewport);
+    for (const path of ['/', '/?demo=1', '/privacy', '/terms', '/404.html']) {
+      await page.goto(path);
+      const results = await new AxeBuilder({ page: page as never }).analyze();
+      expect(results.violations, `${path} at ${viewport.width}px`).toEqual([]);
+    }
+  }
+  expect(errors).toEqual([]);
+});
