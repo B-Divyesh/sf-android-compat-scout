@@ -2,7 +2,7 @@
 
 Find what broke your Android setup.
 
-Android Compat Scout is for owners of customized Android phones and vehicle dongles. It collects a consented ADB snapshot, checks declared requirements, and compares a before/after pair into a JSON report.
+Android Compat Scout is for owners of customized Android phones and vehicle dongles. With USB-debugging approval, Compat Scout saves device facts as JSON. It checks what your setup needs and compares snapshots taken before and after a change.
 
 ## Install
 
@@ -28,7 +28,7 @@ The release also includes a Scoop manifest. Winget manifests under `winget/` are
 
 For local development only, install from the checkout with `cargo install --path .`.
 
-## Use it
+## Capture and compare snapshots
 
 Install Android platform-tools, enable USB debugging, and accept the phone’s prompt.
 
@@ -55,11 +55,11 @@ No phone is needed:
 compat-scout demo
 ```
 
-The binary embeds the invented snapshots and requirement file, so this works after installation from any directory. It prints a persistent temporary output directory containing `compat-report.json` and `compat-check.json`. The browser demo is at `/?demo=1` (also `/demo`); it uses only sample data. See [.factory/demo.md](.factory/demo.md).
+The binary embeds the invented snapshots and requirement file, so this works after installation from any directory. It prints a persistent temporary output directory containing `compat-report.json` and `compat-check.json`. The browser demo is at `/?demo=1` (also `/demo`); it uses only sample data. See [.factory/demo.md](.factory/demo.md) for the sample files, reset behavior, and storage checks.
 
 ## Compatibility benchmark
 
-The bundled [15-case fixture](examples/compatibility-benchmark.json) ships redacted inputs for named phone and setup scenarios. It invokes the public `compare` and `check` commands across OS, connectivity, app, and permission changes. The regression suite requires at least 12 detected cases and currently verifies all 15.
+The bundled [test data](examples/compatibility-benchmark.json) covers 15 named phone and setup cases. It invokes the public `compare` and `check` commands across OS, connectivity, app, and permission changes. Automated tests must detect at least 12 cases; they currently detect all 15.
 
 ## Privacy and safety
 

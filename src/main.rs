@@ -376,11 +376,7 @@ fn compare(before: &Snapshot, after: &Snapshot, before_path: &Path, after_path: 
     let summary = if findings.is_empty() {
         "No material compatibility differences found in this snapshot pair.".into()
     } else {
-        format!(
-            "Found {} compatibility signal{}.",
-            findings.len(),
-            if findings.len() == 1 { "" } else { "s" }
-        )
+        format!("Found {} changes.", findings.len())
     };
     Report {
         format: "android-compat-scout/report-1".into(),

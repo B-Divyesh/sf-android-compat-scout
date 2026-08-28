@@ -1,10 +1,38 @@
 [
   {
     "id": "sample-report",
-    "claim": "The bundled demo writes a categorized compatibility report.",
-    "where": "Demo page, README",
+    "claim": "The bundled demo writes a report that separates update, permission, connection, and missing-app changes.",
+    "where": "Landing preview, Demo page, README",
     "test": "npm test -- --grep @claim:sample-report",
-    "sandbox": "fresh temporary directory; compat-scout demo --out-dir <temp>"
+    "sandbox": "fresh temporary directory; run compat-scout demo and inspect the saved JSON categories"
+  },
+  {
+    "id": "sample-six-changes",
+    "claim": "The bundled sample report contains exactly six changes.",
+    "where": "Landing preview, Demo page",
+    "test": "npm test -- --grep @claim:sample-six-changes",
+    "sandbox": "fresh temporary directory; run the bundled demo and assert the JSON finding count and summary"
+  },
+  {
+    "id": "snapshot-json",
+    "claim": "With USB-debugging approval, Compat Scout saves device facts as JSON.",
+    "where": "Landing workflow, README",
+    "test": "npm test -- --grep @claim:snapshot-json",
+    "sandbox": "fake authorized ADB executable; run the public snapshot command and compare stdout with the saved JSON"
+  },
+  {
+    "id": "requirements-check",
+    "claim": "Compat Scout checks a snapshot against declared setup needs.",
+    "where": "Landing workflow, README",
+    "test": "npm test -- --grep @claim:requirements-check",
+    "sandbox": "shipped snapshot and requirements; run the public check command and inspect saved and streamed JSON findings"
+  },
+  {
+    "id": "compare-json",
+    "claim": "Compat Scout compares snapshots and groups Android setup changes into a JSON report.",
+    "where": "Landing first screen and workflow, README",
+    "test": "npm test -- --grep @claim:compare-json",
+    "sandbox": "shipped before and after snapshots; run the public compare command and inspect the saved and streamed JSON report"
   },
   {
     "id": "redacted-export",
@@ -22,38 +50,45 @@
   },
   {
     "id": "local-installed-release",
-    "claim": "Runs on your computer from a downloaded release and can run its bundled demo from any folder.",
-    "where": "Landing privacy facts, landing install section, README",
+    "claim": "A downloaded Linux release can run its bundled demo from any folder.",
+    "where": "Landing install section, README",
     "test": "npm test -- --grep @claim:local-installed-release",
-    "sandbox": "fresh consumer directory; download the public Linux release, verify its published SHA-256, then run compat-scout demo with no repository checkout"
+    "sandbox": "fresh consumer directory; download the public Linux release, verify its published SHA-256, then run compat-scout demo outside the checkout"
   },
   {
-    "id": "checksum-installers",
-    "claim": "The Windows and Unix installers check SHA-256 before placing a binary on PATH.",
+    "id": "checksum-unix-installer",
+    "claim": "The Unix installer checks SHA-256 before placing a binary on PATH.",
     "where": "Landing install section, README",
-    "test": "npm test -- --grep @claim:checksum-installers",
-    "sandbox": "mock release download; run the Unix installer with matching and mismatching SHA-256 data before checking its install location"
+    "test": "npm test -- --grep @claim:checksum-unix-installer",
+    "sandbox": "mock release download; execute install.sh with matching and mismatching hashes and inspect the destination"
+  },
+  {
+    "id": "checksum-windows-installer",
+    "claim": "The Windows installer checks SHA-256 before placing a binary on PATH.",
+    "where": "Landing install section, README",
+    "test": "npm test -- --grep @claim:checksum-windows-installer",
+    "sandbox": "PowerShell with mocked Invoke-WebRequest; execute install.ps1 with matching and mismatching hashes and inspect the destination"
   },
   {
     "id": "release-download-checksums",
     "claim": "Release downloads include checksums.",
-    "where": "Landing privacy facts, README",
+    "where": "Landing facts, README",
     "test": "npm test -- --grep @claim:release-download-checksums",
-    "sandbox": "download public SHA256SUMS and Linux archive; hash the archive and compare its published entry"
+    "sandbox": "fetch the public release; require an exact checksum entry for every installable asset, download each asset, and hash every file"
   },
   {
     "id": "release-distribution",
-    "claim": "The published release provides the documented platform packages, checksum metadata, Homebrew formula, Scoop manifest, and owner-ready winget manifest; macOS and Windows builds are unsigned.",
-    "where": "README Install and Develop sections",
+    "claim": "The release provides the documented Windows, macOS, and Linux packages plus package-manager metadata.",
+    "where": "Landing platform fact and install choices, README Install and Develop sections",
     "test": "npm test -- --grep @claim:release-distribution",
-    "sandbox": "GitHub release API and public formula/Scoop downloads; inspect the repository winget manifest and unsigned release workflow"
+    "sandbox": "GitHub release API; assert the complete asset matrix, every latest.json URL, tap formula, Scoop manifest, winget manifest, and unsigned workflow"
   },
   {
     "id": "benchmark-12-of-15",
-    "claim": "The compatibility benchmark differentiates at least 12 of 15 declared cases.",
+    "claim": "Automated tests detect at least 12 of 15 named phone and setup cases; they currently detect all 15.",
     "where": "README",
     "test": "npm test -- --grep @claim:benchmark-12-of-15",
-    "sandbox": "run public compare and check commands against the shipped 15-case fixture set"
+    "sandbox": "run public compare and check commands against the shipped 15-case test data"
   },
   {
     "id": "read-only-diagnosis",
@@ -67,12 +102,12 @@
     "claim": "Demo — sample data, nothing is saved.",
     "where": "Demo banner, README, .factory/demo.md",
     "test": "npm test -- --grep @claim:demo-storage-isolation",
-    "sandbox": "fresh browser context at /demo; reset and leave the demo while asserting no real or demo storage is persisted"
+    "sandbox": "seed real localStorage, sessionStorage, IndexedDB, Cache Storage, and cookies; alter/reset/exit the demo; assert sentinels remain, no sample data or download persists, and every request is same-origin"
   },
   {
     "id": "cli-interface-options",
     "claim": "The snapshot, compare, check, and demo commands provide help and accept --json for scripting.",
-    "where": "README Use section",
+    "where": "README Capture and compare snapshots section",
     "test": "npm test -- --grep @claim:cli-interface-options",
     "sandbox": "run compat-scout --help and each listed subcommand --help in a clean build"
   }

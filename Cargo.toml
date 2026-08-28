@@ -1,6 +1,6 @@
 [package]
 name = "android-compat-scout"
-version = "0.1.2"
+version = "0.1.3"
 edition = "2021"
 description = "Private Android compatibility snapshot and regression report"
 license = "MIT"
