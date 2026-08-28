@@ -39,6 +39,8 @@ Tag `v0.1.2` completed successfully in GitHub Actions run `33198625222` on 2026-
 
 The static deployment artifact remains `dist/site`, preserving the original `cli-installers` plus static-site deployment class. Main was pushed with the repaired static artifact and deployment configuration; no infrastructure or DNS was changed from this repository.
 
+Deployment completed through the factory static work-order helper on 2026-08-28 UTC: deployment ID `1b2d031f-3487-44d1-87b5-6588f3f42ae3` to `sf-android-compat-scout` (Central US). `https://android-compat-scout.sociobot.in` now serves `index-9ku_4vao.js`, the repaired bundle. Post-deploy `/opt/fleet/lib/verify-url.sh` passed: HTTP 200, 823 ms load measurement, zero console errors, one h1, `lang=en`, a main landmark, and no missing image alt text.
+
 ## Known limits
 
 No physical Android device was available in this worker. The ADB collector is covered with a fake executable for command sequencing and redaction; live USB authorization and OEM-specific output still need device smoke testing after release.
