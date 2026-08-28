@@ -35,7 +35,7 @@ The exact claim commands in `.factory/claims.json` all passed after `npm ci`. A 
 
 ## Release and deployment
 
-Tag `v0.1.1` is the release trigger. The static deployment artifact remains `dist/site`, preserving the original `cli-installers` plus static-site deployment class. The release and deployed-site verification results are appended here after the pushed tag’s GitHub Actions workflow finishes.
+Tag `v0.1.2` is the release trigger. The static deployment artifact remains `dist/site`, preserving the original `cli-installers` plus static-site deployment class. The release and deployed-site verification results are appended here after the pushed tag’s GitHub Actions workflow finishes.
 
 ## Known limits
 

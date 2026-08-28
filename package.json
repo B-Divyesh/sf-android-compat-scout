@@ -1,7 +1,7 @@
 {
   "name": "android-compat-scout-site",
   "private": true,
-  "version": "0.1.1",
+  "version": "0.1.2",
   "type": "module",
   "scripts": {
     "build:site": "vite build --outDir ../dist/site",

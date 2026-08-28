@@ -8,7 +8,7 @@ const app = document.querySelector<HTMLDivElement>('#app')!;
 const shell = (content: string) => `
 <header class="topbar"><a class="wordmark" href="/" data-route>ANDROID<br><strong>COMPAT SCOUT</strong></a><nav aria-label="Main navigation"><a href="/demo" data-route>Demo</a><a href="/#install">Install</a><a href="/privacy" data-route>Privacy</a></nav></header>
 <div class="route-note" aria-live="polite"></div><main id="main" tabindex="-1">${content}</main>
-<footer><p>Private evidence for Android setup changes.</p><p><a href="/privacy" data-route>Privacy</a> · <a href="/terms" data-route>Terms</a> · Built by Param Factory · v0.1.1</p></footer>`;
+<footer><p>Private evidence for Android setup changes.</p><p><a href="/privacy" data-route>Privacy</a> · <a href="/terms" data-route>Terms</a> · Built by Param Factory · v0.1.2</p></footer>`;
 
 const terminal = `<div class="terminal" aria-label="Terminal recording of the sample report"><p><span>$</span> compat-scout demo</p><p>Demo report written to /tmp/compat-scout-demo</p><p>Found 6 compatibility signals.</p><p class="warn">[Permission] ACCESS FINE LOCATION permission changed</p><p class="fault">[Missing component] wireless bridge is no longer installed</p><p><span>$</span> cat /tmp/compat-scout-demo/compat-report.json</p></div>`;
 
