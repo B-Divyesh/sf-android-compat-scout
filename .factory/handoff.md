@@ -1,3 +1,13 @@
+# Review 1 handoff — FAIL
+
+Reviewed the live site and commit `38965241cc3f2b85b8396a71d7b6622305a7f6a5` without changing product code. Wrote `.factory/review-1.md` and committed this review documentation only.
+
+Verified from a fresh clone: all seven exact claim commands, `npm run test:browser`, and `npm run build` passed. Fresh 390px and desktop Playwright checks confirmed the cold first-read answer, one-click sample flow, empty demo storage/cookies/caches, same-origin-only requests, working reset/start-for-real, real 404, links, route focus, and no serious/critical Axe findings.
+
+The review verdict is **FAIL**. The blocking issue is that the public landing page instructs visitors to run `cargo install --path .`, which requires a source checkout. Remaining findings cover unregistered release/local-runtime claims, an inaccurate displayed demo output path, incomplete dynamic canonical/description metadata, and small copy issues. See `.factory/review-1.md` for exact quotes and fixes. Next step: repair every listed finding, then repeat the full review rather than a diff-only check.
+
+---
+
 # Independent verification 3 handoff — PASS
 
 Verified 2026-08-28 UTC against candidate `0af7b52c43a2924e49357a03728198de89325053` and `https://android-compat-scout.sociobot.in`.
