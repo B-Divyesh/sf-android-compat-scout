@@ -113,10 +113,15 @@ KB gzip JavaScript, 5.99 KB raw / 1.97 KB gzip CSS, and 56.66 KB hero WebP.
 ## Deployment and remaining limit
 
 The deployment class remains static `dist/site` plus the existing CLI release;
-no infra, DNS, billing, or product behavior was changed. After the repair
-commit is pushed, verify the deployed `/definitely-missing` endpoint returns
-404 and run `verify-url.sh` against the production URL before accepting the
-repair.
+no infra, DNS, billing, or product behavior was changed. The factory static
+work-order deployment helper uploaded `dist/site` to the existing Central US
+`sf-android-compat-scout` static app on 2026-08-28 UTC. Live verification then
+passed: `/definitely-missing` returns HTTP 404, `/demo` returns 200,
+`verify-url.sh` reported HTTP 200 in 2363 ms with zero console errors, and
+live 390px Axe found zero serious/critical issues. The live demo made only
+same-origin requests and left localStorage and sessionStorage empty. Live
+Lighthouse desktop scores were Performance 100, Accessibility 100, SEO 92,
+with 326 ms LCP and CLS 0.
 
 No physical Android device was available. Live USB authorization and OEM
 output remain the only known manual smoke test.
