@@ -63,4 +63,4 @@ PLAYWRIGHT_BASE_URL=https://android-compat-scout.sociobot.in npm run test:browse
 
 ## Known gaps and next steps
 
-No reviewed or testable product gap remains. No physical Android device was attached to this worker; the collector path is covered by an authorized fake-ADB end-to-end test that verifies command sequencing, JSON output, and identifier redaction. No operator action is required for this work order.
+No reviewed or testable product gap remains. No physical Android device was attached to this worker; the collector path is covered by an authorized fake-ADB end-to-end test that verifies command sequencing, JSON output, and identifier redaction. Winget publication stays outside the worker scope; the complete `0.1.3` manifests are ready for owner submission.
