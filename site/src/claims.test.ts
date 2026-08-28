@@ -203,6 +203,8 @@ describe('sandbox claims', () => {
 
   test('@claim:release-distribution public release publishes the documented assets, tap formula, and Scoop manifest', () => {
     const release = JSON.parse(execFileSync('curl', ['-fsSL', releaseApi], { encoding: 'utf8' }));
+    const latestRelease = JSON.parse(execFileSync('curl', ['-fsSL', 'https://api.github.com/repos/B-Divyesh/sf-android-compat-scout/releases/latest'], { encoding: 'utf8' }));
+    expect(latestRelease.tag_name).toBe(releaseTag);
     const names = release.assets.map((asset: { name: string }) => asset.name);
     const expectedAssets = [...installableAssets, 'SHA256SUMS', 'latest.json', 'android-compat-scout.json', 'android-compat-scout.rb'];
     expect(names.sort()).toEqual(expectedAssets.sort());

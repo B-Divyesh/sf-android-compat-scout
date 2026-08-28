@@ -183,3 +183,13 @@ test('every route has no automated accessibility violations at mobile and deskto
   }
   expect(errors).toEqual([]);
 });
+
+test('an already loaded demo stays usable if the network drops', async ({ context, page }) => {
+  await page.goto('/?demo=1');
+  await context.setOffline(true);
+  await page.getByRole('button', { name: 'Reset demo' }).click();
+  await expect(page.getByText('Found 6 changes.')).toBeVisible();
+  await page.getByRole('link', { name: 'Start for real' }).click();
+  await expect(page.getByRole('heading', { level: 1 })).toHaveText('Find what broke your Android setup');
+  await context.setOffline(false);
+});

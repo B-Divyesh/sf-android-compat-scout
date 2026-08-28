@@ -1,0 +1,14 @@
+{
+  "url": "https://android-compat-scout.sociobot.in",
+  "loadMs": 729,
+  "errors": [],
+  "a11y": {
+    "title": "Android Compat Scout — Find Android setup changes",
+    "lang": "en",
+    "h1": 1,
+    "main": true,
+    "imgsMissingAlt": 0,
+    "buttonsUnlabeled": 0,
+    "textLength": 1912
+  }
+}
