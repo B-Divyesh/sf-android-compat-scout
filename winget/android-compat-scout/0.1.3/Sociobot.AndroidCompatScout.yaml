@@ -1,0 +1,9 @@
+PackageIdentifier: Sociobot.AndroidCompatScout
+PackageVersion: 0.1.3
+PackageLocale: en-US
+Publisher: Sociobot
+PackageName: Android Compat Scout
+License: MIT
+ShortDescription: Local Android compatibility snapshots and change reports.
+ManifestType: defaultLocale
+ManifestVersion: 1.6.0

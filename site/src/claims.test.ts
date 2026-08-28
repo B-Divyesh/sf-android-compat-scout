@@ -216,12 +216,32 @@ describe('sandbox claims', () => {
       x86_64_unknown_linux_musl: `${releaseBase}/compat-scout-x86_64-unknown-linux-musl.tar.gz`,
     };
     expect(latest.assets).toEqual(expectedLatest);
+    const publicSums = new Map(execFileSync('curl', ['-fsSL', `${releaseBase}/SHA256SUMS`], { encoding: 'utf8' }).trim().split('\n').map((line: string) => {
+      const match = line.match(/^([a-f0-9]{64})\s+(.+)$/)!;
+      return [match[2], match[1]];
+    }));
     const formula = execFileSync('curl', ['-fsSL', 'https://raw.githubusercontent.com/B-Divyesh/homebrew-android-compat-scout/main/Formula/android-compat-scout.rb'], { encoding: 'utf8' });
     expect(formula).toContain('class AndroidCompatScout < Formula');
     expect(formula).toContain(`releases/download/${releaseTag}`);
+    expect(formula).toContain(publicSums.get('compat-scout-aarch64-apple-darwin.tar.gz'));
+    expect(formula).toContain(publicSums.get('compat-scout-x86_64-apple-darwin.tar.gz'));
     const scoop = execFileSync('curl', ['-fsSL', `${releaseBase}/android-compat-scout.json`], { encoding: 'utf8' });
-    expect(JSON.parse(scoop).architecture['64bit'].bin).toBe('compat-scout.exe');
-    expect(readFileSync(join(process.cwd(), 'winget', 'android-compat-scout', releaseVersion, 'Sociobot.AndroidCompatScout.yaml'), 'utf8')).toContain(`PackageVersion: ${releaseVersion}`);
+    const scoopManifest = JSON.parse(scoop);
+    expect(scoopManifest.version).toBe(releaseVersion);
+    expect(scoopManifest.architecture['64bit']).toEqual({
+      url: `${releaseBase}/compat-scout-x86_64-pc-windows-msvc.zip`,
+      bin: 'compat-scout.exe',
+      hash: publicSums.get('compat-scout-x86_64-pc-windows-msvc.zip'),
+    });
+    expect(JSON.parse(readFileSync(join(process.cwd(), 'scoop-bucket', 'android-compat-scout.json'), 'utf8'))).toEqual(scoopManifest);
+    const wingetRoot = join(process.cwd(), 'winget', 'android-compat-scout', releaseVersion);
+    const wingetInstaller = readFileSync(join(wingetRoot, 'Sociobot.AndroidCompatScout.installer.yaml'), 'utf8');
+    expect(wingetInstaller).toContain(`PackageVersion: ${releaseVersion}`);
+    expect(wingetInstaller).toContain(`InstallerUrl: ${releaseBase}/compat-scout-x86_64-pc-windows-msvc.zip`);
+    expect(wingetInstaller).toContain(`InstallerSha256: ${publicSums.get('compat-scout-x86_64-pc-windows-msvc.zip')?.toUpperCase()}`);
+    for (const file of ['Sociobot.AndroidCompatScout.yaml', 'Sociobot.AndroidCompatScout.locale.en-US.yaml']) {
+      expect(readFileSync(join(wingetRoot, file), 'utf8')).toContain(`PackageVersion: ${releaseVersion}`);
+    }
     const workflow = readFileSync(join(process.cwd(), '.github', 'workflows', 'release.yml'), 'utf8');
     expect(workflow).toContain('pkgbuild --root');
     expect(workflow).not.toMatch(/codesign|signtool|WINDOWS_CERT_PFX|APPLE_CERTIFICATE/);
