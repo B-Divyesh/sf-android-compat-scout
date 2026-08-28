@@ -1,14 +1,24 @@
 {
   "name": "android-compat-scout-site",
   "private": true,
-  "version": "0.1.0",
+  "version": "0.1.1",
   "type": "module",
   "scripts": {
     "build:site": "vite build --outDir ../dist/site",
     "build": "npm run build:site && cargo build --release",
     "test": "cargo test && node scripts/test.mjs",
     "test:claims": "npm test -- --grep @claim",
+    "test:browser": "playwright test",
+    "typecheck": "tsc --noEmit",
     "preview": "vite preview --host 127.0.0.1"
   },
-  "devDependencies": {"vite": "^7.1.9", "vitest": "^3.2.4"}
+  "devDependencies": {
+    "@axe-core/playwright": "^4.10.2",
+    "@playwright/test": "^1.58.2",
+    "@types/node": "^22.20.1",
+    "playwright": "^1.58.2",
+    "typescript": "^5.9.3",
+    "vite": "^7.1.9",
+    "vitest": "^3.2.4"
+  }
 }

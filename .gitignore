@@ -6,3 +6,5 @@ graphify-out/
 .DS_Store
 target/
 site/dist/
+test-results/
+playwright-report/

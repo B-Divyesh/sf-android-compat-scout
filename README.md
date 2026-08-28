@@ -2,71 +2,75 @@
 
 Find what broke your Android setup.
 
-Android Compat Scout is for owners of customized Android phones, vehicle dongles, and local apps. It collects a consented ADB snapshot, checks declared requirements, and compares a before/after pair into a private JSON report. It does not root devices, bypass restrictions, or modify installed apps.
-
-## Quick start
-
-Install Android platform-tools, enable USB debugging, and accept the phone's prompt.
-
-```sh
-cargo build --release
-./target/release/compat-scout snapshot --out before.json
-# Take another snapshot after an update or configuration change.
-./target/release/compat-scout snapshot --out after.json
-./target/release/compat-scout compare before.json after.json --out report.json
-```
-
-Use a declared requirement file when you know which app, permissions, and device roles matter:
-
-```sh
-./target/release/compat-scout check after.json examples/fermata-requirements.json
-```
-
-`compat-scout --help` documents every command. All commands can print JSON for scripting. A missing or unauthorized device produces a clear ADB consent error.
-
-## Try the offline sample
-
-No phone is needed for the sample.
-
-```sh
-cargo run -- demo
-```
-
-It reads invented snapshots in `examples/` and writes a report to a temporary directory. The site demo is available at `/demo`; its sample does not access real reports or devices. See [.factory/demo.md](.factory/demo.md).
+Android Compat Scout is for owners of customized Android phones, vehicle dongles, and local apps. It collects a consented ADB snapshot, checks declared requirements, and compares a before/after pair into a JSON report.
 
 ## Install
 
-When a release is published, use:
+Download a release from [GitHub Releases](https://github.com/B-Divyesh/sf-android-compat-scout/releases), or use an installer:
 
 ```sh
 curl -fsSL https://android-compat-scout.sociobot.in/install.sh | sh
 ```
 
-On Windows:
-
 ```powershell
 irm https://android-compat-scout.sociobot.in/install.ps1 | iex
 ```
 
-Both installers verify SHA-256 before placing the binary on your path. The macOS package and Windows build are unsigned. On macOS, use right-click → Open after downloading a package. Scoop and winget manifests are included for release submission.
+Both scripts check the downloaded binary against the release `SHA256SUMS` file before installation. macOS and Windows builds are unsigned. On macOS, use right-click → Open after downloading the package. The release includes Linux archives, `.deb`, `.rpm`, macOS archives and `.pkg` files, a Windows zip, checksums, and `latest.json` metadata. The release also includes a Homebrew formula and a Scoop manifest; winget manifests under `winget/` are ready for owner submission.
+
+For local development only, install from the checkout with `cargo install --path .`.
+
+## Use it
+
+Install Android platform-tools, enable USB debugging, and accept the phone’s prompt.
+
+```sh
+compat-scout snapshot --out before.json
+# Take another snapshot after an update or configuration change.
+compat-scout snapshot --out after.json
+compat-scout compare before.json after.json --out report.json
+```
+
+Use a requirement file when you know which app, permissions, and device roles matter:
+
+```sh
+compat-scout check after.json examples/fermata-requirements.json
+```
+
+`compat-scout --help` documents each command. The snapshot, compare, check, and demo commands accept `--json` for scripting.
+
+## Try the bundled sample
+
+No phone is needed:
+
+```sh
+compat-scout demo
+```
+
+The binary embeds the invented snapshots and requirement file, so this works after installation from any directory. It prints a persistent temporary output directory containing `compat-report.json` and `compat-check.json`. The browser demo is at `/demo`; it uses only sample data. See [.factory/demo.md](.factory/demo.md).
+
+## Compatibility benchmark
+
+The bundled [15-case fixture](examples/compatibility-benchmark.json) exercises OS, connectivity, app, and permission changes. The regression suite requires at least 12 detected cases and currently verifies all 15.
+
+## Privacy and safety
+
+The collector intentionally avoids serial numbers, Wi-Fi names, and MAC addresses. Reports can still reveal installed package names and Android build information, so store them carefully. Compat Scout does not root a device, bypass restrictions, or modify installed apps. Do not inspect or operate a device while driving.
 
 ## Develop and verify
 
 Requirements: Rust stable and Node 22+.
 
 ```sh
-npm install
+npm ci
 npm test
+npm run typecheck
 npm run build
+cargo fmt --check
+cargo clippy --all-targets -- -D warnings
 ```
 
-The exact static deployment output is `dist/site` (`index.html` is at its root). `npm test -- --grep @claim` runs the claims listed in `.factory/claims.json`. The release workflow runs for `v*` tags and publishes macOS (arm64 and x64), Linux, and Windows archives with checksums.
-
-## Privacy and safety
-
-Snapshots are local JSON files. The collector intentionally does not request serial numbers, accounts, Wi-Fi names, or MAC addresses. Reports may still reveal installed package names and Android build information, so store them carefully. Do not inspect or operate a device while driving.
-
-The browser documentation site has an optional $12 Pro license check. It stores the pasted license in this browser and sends it to Sociobot only for verification. Read the site’s `/privacy` and `/terms` pages before purchase.
+The static deployment output is `dist/site`. The release workflow runs for `v*` tags and publishes the installable artifacts. Do not publish from a workstation; push a tested tag and let GitHub Actions create the release.
 
 ## License
 

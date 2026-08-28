@@ -1,10 +1,5 @@
 # Demo sandbox
 
-Run `compat-scout demo` from the repository, or visit `/demo` on the site.
-The command reads the invented snapshots in `examples/` and writes
-`compat-report.json` plus `compat-check.json` into a temporary directory. Pass
-`--out-dir <folder>` to inspect a named temporary folder. It never invokes adb.
+Run `compat-scout demo` from any directory after installation, or visit `/demo` on the site. The binary embeds the invented snapshots and requirements, so it does not depend on a source checkout. It writes `compat-report.json` and `compat-check.json` to a newly created persistent temporary directory and prints that directory. Pass `--out-dir <folder>` to choose a location. The demo never invokes adb.
 
-The web demo uses a `demo:compat-scout` session-storage namespace. Reset demo
-clears that namespace. The web page is a visual reading of the same bundled
-sample and does not read local reports or write real data.
+The web demo is a visual reading of the bundled sample. It has no real-data storage or outbound request path. Its banner labels the sample mode, offers Reset demo, and offers Start for real. `/demo` is the direct verifier URL.

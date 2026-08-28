@@ -1,2 +1,8 @@
 /* Mobile starts with the task and action; the evidence sheet follows. */
 @media (max-width:700px){.hero-art{order:initial}.eyebrow{margin:0 0 1rem}}
+
+/* All persistent navigation and download links have finger-size targets. */
+.topbar nav{gap:.4rem}
+.topbar nav a,footer a,.install a{display:inline-flex;align-items:center;min-height:44px;padding:.25rem .4rem}
+pre:focus-visible{outline:3px solid var(--cyan);outline-offset:3px}
+@media (max-width:700px){.topbar nav{gap:.1rem;font-size:.82rem}.topbar nav a{padding:.2rem}}

@@ -1,0 +1,20 @@
+{
+  "threshold": 12,
+  "cases": [
+    {"id":"android-release-change","expected":"OS version"},
+    {"id":"sdk-change","expected":"OS version"},
+    {"id":"usb-role-change","expected":"Connectivity"},
+    {"id":"wifi-disabled","expected":"Connectivity"},
+    {"id":"wifi-presence-change","expected":"Connectivity"},
+    {"id":"required-app-removed","expected":"Missing component"},
+    {"id":"app-version-change","expected":"App version"},
+    {"id":"granted-permission-revoked","expected":"Permission"},
+    {"id":"minimum-sdk-not-met","expected":"OS version"},
+    {"id":"wifi-requirement-not-met","expected":"Connectivity"},
+    {"id":"usb-accessory-not-reported","expected":"Connectivity"},
+    {"id":"declared-app-missing","expected":"Missing component"},
+    {"id":"declared-minimum-version-not-met","expected":"App version"},
+    {"id":"declared-permission-not-granted","expected":"Permission"},
+    {"id":"second-required-app-missing","expected":"Missing component"}
+  ]
+}

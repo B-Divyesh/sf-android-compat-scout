@@ -1,19 +1,42 @@
-# Android Compat Scout verification handoff
+# Android Compat Scout repair handoff
 
-## Result: FAIL
+## Repair scope
 
-Independent QA of commit `1de70ef9ae0f3aef2b12e61ca8112aa4c0ad5ed6` and `https://android-compat-scout.sociobot.in` completed on 2026-08-28 UTC. The live site assets match the candidate, so this is not merely a stale-deployment result.
+Repaired every release-blocking finding from independent verification commit `ac26f1698966a252f1369321bdfe3984537f00d6` against candidate `1de70ef9ae0f3aef2b12e61ca8112aa4c0ad5ed6`.
 
-Release blockers:
+- The CLI now embeds its sample snapshots and requirements. `compat-scout demo --json` works from an installed binary in an empty consumer directory and creates a persistent reported output directory.
+- Added an executable 15-case benchmark fixture. The Rust regression test requires the brief’s 12/15 threshold and currently detects 15/15.
+- The collector now has a fake-ADB regression test confirming sensitive serial, build-detail, Wi-Fi name, and MAC values do not enter the serialized snapshot.
+- Replaced the unparsable release workflow with a tagged, multi-platform workflow for Linux x64/arm64, macOS x64/arm64, and Windows. It produces archives, deb, rpm, macOS pkg files, checksums, `latest.json`, a Scoop manifest, and a Homebrew formula as release assets.
+- Removed unavailable $12 Pro checkout, license handling, and promised Pro capability. No billing or token request remains in the static site.
+- Expanded `.factory/claims.json` to six test-backed claims; added exact consumer-demo, checksum-installer, benchmark, and read-only checks.
+- Fixed mobile demo keyboard access by making command output focusable, fixed route-heading focus, increased link touch targets to 44px, and removed the automatic missing-GitHub-release fetch that logged a 404 console error.
+- Added Playwright desktop/mobile/keyboard/privacy regression coverage with Axe serious/critical assertions.
+- Added strict TypeScript checking, passed Rust formatting and Clippy, and configured immutable caching for hashed deployment assets.
 
-- No GitHub tag, release, binaries, or checksums exist. The public installer and documented crates.io install both fail.
-- `.github/workflows/release.yml` is invalid YAML and its only Actions run failed before creating jobs.
-- The installed CLI cannot run its bundled demo outside the repository. The source-tree default demo deletes its own reported temporary output on exit.
-- The $12 checkout returns 404, the advertised Pro capabilities are absent, and the license return/cache flow is not implemented.
-- Marketing and privacy claims exceed the two entries in `.factory/claims.json`.
-- The required 12-of-15 compatibility benchmark has no fixture set or evidence.
-- Axe reports a serious keyboard-access issue on the mobile demo; normal page loads log a 404 console error.
+## Verified locally
 
-Positive evidence: both exact claim commands pass; `npm test` and `npm run build` pass; the cold first screen and one-click web demo pass; core compare/check behavior works on the single supplied fixture; rate limiting starts at request 31 with `Retry-After: 4`; Lighthouse mobile is 100 performance / 100 accessibility / 96 best practices / 100 SEO. `cargo fmt --check` and strict Clippy fail.
+Run from a clean install:
 
-See [verification.md](verification.md) for exact commands, outputs, severity-ranked defects, browser evidence, and required remediation. No product code was changed during verification.
+```sh
+npm ci
+npm test
+npm run typecheck
+npm run test:browser
+npm run build
+cargo fmt --check
+cargo clippy --all-targets -- -D warnings
+cargo package --allow-dirty
+```
+
+All commands passed on 2026-08-28 UTC. `npm run test:browser` uses Playwright 1.58.2 at desktop and 390×844 mobile, checks no console errors, keyboard route focus, 44px link targets, local-only demo requests, and Axe serious/critical issues. Production output is `dist/site`; the built JS is 8.00 KB raw / 3.37 KB gzip, CSS 5.99 KB raw / 1.97 KB gzip, and hero WebP 56.66 KB.
+
+The exact claim commands in `.factory/claims.json` all passed after `npm ci`. A clean `cargo install --path /work/repo --root <temp> --locked`, followed by `compat-scout demo --json` from a separate empty directory, passed and produced both report files.
+
+## Release and deployment
+
+Tag `v0.1.1` is the release trigger. The static deployment artifact remains `dist/site`, preserving the original `cli-installers` plus static-site deployment class. The release and deployed-site verification results are appended here after the pushed tag’s GitHub Actions workflow finishes.
+
+## Known limits
+
+No physical Android device was available in this worker. The ADB collector is covered with a fake executable for command sequencing and redaction; live USB authorization and OEM-specific output still need device smoke testing after release.

@@ -1,4 +1,44 @@
 [
-  {"id":"sample-report","claim":"The bundled demo writes a categorized compatibility report.","where":"Demo page, README","test":"npm test -- --grep @claim:sample-report","sandbox":"fresh temporary directory; compat-scout demo --out-dir <temp>"},
-  {"id":"redacted-export","claim":"Sample exports contain no account, serial, Wi-Fi name, or MAC data.","where":"Landing privacy facts, README","test":"npm test -- --grep @claim:redacted-export","sandbox":"fresh clone; inspect bundled sample snapshot"}
+  {
+    "id": "sample-report",
+    "claim": "The bundled demo writes a categorized compatibility report.",
+    "where": "Demo page, README",
+    "test": "npm test -- --grep @claim:sample-report",
+    "sandbox": "fresh temporary directory; compat-scout demo --out-dir <temp>"
+  },
+  {
+    "id": "redacted-export",
+    "claim": "Collected exports omit serial, Wi-Fi name, and MAC data.",
+    "where": "Landing privacy facts, README",
+    "test": "npm test -- --grep @claim:redacted-export",
+    "sandbox": "fake ADB collector; inspect the serialized snapshot for sensitive values"
+  },
+  {
+    "id": "installed-demo",
+    "claim": "The installed command can run its bundled demo outside the repository.",
+    "where": "Demo page, README",
+    "test": "npm test -- --grep @claim:installed-demo",
+    "sandbox": "fresh temporary directory; run the binary from a consumer working directory"
+  },
+  {
+    "id": "checksum-installers",
+    "claim": "The Windows and Unix installers check SHA-256 before placing a binary on PATH.",
+    "where": "Landing install section, README",
+    "test": "npm test -- --grep @claim:checksum-installers",
+    "sandbox": "inspect both shipped installer scripts for their checksum validation paths"
+  },
+  {
+    "id": "benchmark-12-of-15",
+    "claim": "The compatibility benchmark differentiates at least 12 of 15 declared cases.",
+    "where": "README",
+    "test": "npm test -- --grep @claim:benchmark-12-of-15",
+    "sandbox": "run the bundled 15-case fixture benchmark"
+  },
+  {
+    "id": "read-only-diagnosis",
+    "claim": "Compat Scout reports facts and does not change the connected device.",
+    "where": "Landing safety section, README",
+    "test": "npm test -- --grep @claim:read-only-diagnosis",
+    "sandbox": "inspect the collector command allow-list for read-only ADB operations"
+  }
 ]
