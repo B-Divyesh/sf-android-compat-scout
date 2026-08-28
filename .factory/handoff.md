@@ -1,30 +1,44 @@
-# Android Compat Scout — review 3 handoff
+# Android Compat Scout — polish 3 handoff
 
 ## Outcome
 
-FAIL. `.factory/review-3.md` records eight findings: four blocking, one high, two medium, and one minor. Product code was not modified.
+PASS. This repair closes every finding in `.factory/review-1.md`, `.factory/review-2.md`, and `.factory/review-3.md`; the full mapping is in `.factory/polish-3.md`. No finding of any severity is deferred.
 
-The blocking issues are an unsupported causal headline, an under-tested cross-platform runtime statement, an invalid/incomplete winget manifest set described as submission-ready, and an unregistered sensitive-report-content claim. The live landing page also overflows to 532 px at a 390 px viewport, and three persistent mobile controls are below 44 px.
+The product remains a Rust single-binary CLI with a static Vite landing site. It now has a bounded, non-causal first-screen headline; one-click `?demo=1` isolation with reset/exit; a complete claims contract; corrected winget manifests validated by the official Windows CLI; 44px persistent mobile controls; and 390px/200%-text reflow coverage.
 
-## Verification performed
+## Commits and deployment
 
-- Reviewed production at 390×844, with an Android user agent, and at 1440×900.
-- Entered `/?demo=1` in one click, changed and reset the sample, exited, and confirmed seeded localStorage, sessionStorage, IndexedDB, Cache Storage, and cookies were unchanged.
-- Confirmed the full demo request log was same-origin, with no downloads or console errors.
-- Ran every exact command in `.factory/claims.json` from clean clone `/tmp/android-compat-review3.ipaSQq/repo` at `49ad29d84d33f7cf147ad3514d4ab74150c4d9a2`: 16/16 returned zero.
-- Ran the production Playwright suite: 8/8 passed.
-- Ran `npm run typecheck`, `npm run build`, `cargo fmt --check`, and `cargo clippy --all-targets -- -D warnings`: all passed; `dist/site` was produced.
-- Ran `/opt/fleet/lib/verify-url.sh`: HTTP 200, 600 ms observed load, no console errors, valid title/lang/main/h1/alt/button basics.
-- Crawled every rendered site link and every README link: no dead link found. Confirmed an unknown route returns the designed page with HTTP 404.
-- Verified SPA route focus and Back restoration. Axe reported zero automated violations on all tested routes at mobile and desktop sizes.
+- Product repair: `4fea451a2f91380e4285bdd85f71ac4403ec9b3a` (`fix: close review three findings`).
+- Winget CI repair: `7790325d569496c17fdd497c770e19943ae7f143` (`ci: validate winget manifest sets`).
+- Both commits are pushed to `origin/main`.
+- Static deployment: `a7c3033c-8fee-4acd-8263-f72816caa9ab` to <https://android-compat-scout.sociobot.in>.
+- Official Windows validation: <https://github.com/B-Divyesh/sf-android-compat-scout/actions/runs/33214884847> — success.
 
-## Evidence
+## How to run and verify
 
-- Review: `.factory/review-3.md`
-- Cold screenshots: `/tmp/review3-390.png`, `/tmp/review3-mobile-cold.png`, `/tmp/review3-desktop-cold.png`
-- Verify output: `/tmp/android-compat-verify3.haiP1I/verify.json`
-- Clean clone: `/tmp/android-compat-review3.ipaSQq/repo`
+```sh
+npm ci
+npm test
+npm run typecheck
+npm run test:browser
+npm run build
+cargo fmt --check
+cargo clippy --all-targets -- -D warnings
+cargo package --allow-dirty
+```
 
-## Next steps
+Demo URLs are `/?demo=1` and `/demo`. The browser sample is storage-free: its banner says “Demo — sample data, nothing is saved,” Reset demo rerenders only sample UI, and Start for real returns to `/`. The CLI demo is `compat-scout demo`; it embeds its samples and writes to a persistent `compat-scout-demo-<timestamp>` directory.
 
-Address findings in severity order and rerun the entire review, not only changed checks. In particular, add horizontal-overflow and exhaustive touch-target assertions because the current browser suite misses both defects. Validate winget with the official schema/tool rather than string matching, and make each public claim match an observable tagged test exactly.
+## Verification evidence
+
+- Clean clone: `/tmp/android-compat-scout-polish-3.NYhQZO/repo`, commit `7790325d569496c17fdd497c770e19943ae7f143`.
+- From that clone, `npm ci` reported zero vulnerabilities and all 19 exact claim commands from `.factory/claims.json` passed individually. The full clean-clone suite passed: `npm test` (19 tests), `npm run typecheck`, `npm run test:browser` (9 tests), `npm run build`, Rust format/clippy, and package verification.
+- Production `PLAYWRIGHT_BASE_URL=https://android-compat-scout.sociobot.in npm run test:browser`: 9/9 passed. It checks one-click demo isolation, storage sentinels, offline reset/exit, no third-party requests, metadata, h1 focus, 44px controls, 390px/200%-text reflow, all real routes, 404 legal links, and Axe violations.
+- [verify-url output](/tmp/android-compat-scout-polish-3-live/verify.json): HTTP 200, 842 ms, zero console errors, title/lang/h1/main/alt/button checks passed.
+- Cold production screenshots: [desktop](/tmp/android-compat-scout-polish-3-live/screenshot-desktop.png) and [390px mobile](/tmp/android-compat-scout-polish-3-live/screenshot-mobile.png).
+- [Mobile Lighthouse JSON](/tmp/android-compat-scout-polish-3-live/lighthouse-mobile.json): Performance 100, Accessibility 100, Best Practices 100, SEO 100; LCP 1098 ms, TBT 21 ms, CLS 0, transfer 64,210 bytes.
+- Live URLs: `/`, `/demo`, `/privacy`, `/terms`, and `/?demo=1` returned 200; `/not-a-real-page-polish-3` returned 404. Route titles/canonicals and destination-h1 focus passed on all real routes.
+
+## Known gaps and next steps
+
+None. No new binary tag was needed because this repair changes documentation, static-site behavior, claims, accessibility, and package manifests; the existing public `v0.1.3` binary remains the artifact exercised by release/install claims.
