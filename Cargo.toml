@@ -1,0 +1,20 @@
+[package]
+name = "android-compat-scout"
+version = "0.1.0"
+edition = "2021"
+description = "Private Android compatibility snapshot and regression report"
+license = "MIT"
+repository = "https://github.com/B-Divyesh/sf-android-compat-scout"
+
+[[bin]]
+name = "compat-scout"
+path = "src/main.rs"
+
+[dependencies]
+anyhow = "1.0"
+chrono = { version = "0.4", features = ["serde"] }
+clap = { version = "4.5", features = ["derive"] }
+serde = { version = "1.0", features = ["derive"] }
+serde_json = "1.0"
+tempfile = "3.12"
+

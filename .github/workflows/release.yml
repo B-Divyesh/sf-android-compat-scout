@@ -1,0 +1,80 @@
+name: release
+on:
+  push:
+    tags: ['v*']
+  workflow_dispatch:
+permissions:
+  contents: write
+jobs:
+  build:
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - os: ubuntu-latest
+            target: x86_64-unknown-linux-musl
+            asset: compat-scout-x86_64-unknown-linux-musl.tar.gz
+          - os: macos-latest
+            target: aarch64-apple-darwin
+            asset: compat-scout-aarch64-apple-darwin.tar.gz
+          - os: macos-latest
+            target: x86_64-apple-darwin
+            asset: compat-scout-x86_64-apple-darwin.tar.gz
+          - os: windows-latest
+            target: x86_64-pc-windows-msvc
+            asset: compat-scout-x86_64-pc-windows-msvc.zip
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dtolnay/rust-toolchain@stable
+        with: { targets: ${{ matrix.target }} }
+      - name: Build
+        run: cargo build --release --target ${{ matrix.target }}
+      - name: Package Unix
+        if: runner.os != 'Windows'
+        shell: bash
+        run: |
+          mkdir release
+          cp target/${{ matrix.target }}/release/compat-scout release/
+          tar -czf release/${{ matrix.asset }} -C release compat-scout
+      - name: Package Linux deb and rpm
+        if: runner.os == 'Linux'
+        shell: bash
+        run: |
+          cargo build --release
+          cargo install cargo-deb --locked
+          cargo deb --no-build
+          cp target/debian/*.deb release/android-compat-scout_0.1.0_amd64.deb
+          curl -fsSL https://github.com/goreleaser/nfpm/releases/download/v1.13.1/nfpm_1.13.1_Linux_x86_64.tar.gz | tar -xz nfpm
+          ./nfpm package --config packaging/nfpm.yaml --packager rpm --target release/android-compat-scout-0.1.0-1.x86_64.rpm
+      - name: Package macOS pkg
+        if: runner.os == 'macOS'
+        shell: bash
+        run: |
+          mkdir -p pkgroot/usr/local/bin
+          cp target/${{ matrix.target }}/release/compat-scout pkgroot/usr/local/bin/
+          pkgbuild --root pkgroot --identifier in.sociobot.android-compat-scout --version 0.1.0 release/android-compat-scout-${{ matrix.target }}.pkg
+      - name: Package Windows
+        if: runner.os == 'Windows'
+        shell: pwsh
+        run: |
+          mkdir release
+          Copy-Item target/${{ matrix.target }}/release/compat-scout.exe release/compat-scout.exe
+          Compress-Archive -Path release/compat-scout.exe -DestinationPath release/${{ matrix.asset }}
+      - uses: actions/upload-artifact@v4
+        with: { name: ${{ matrix.asset }}, path: release/ }
+  release:
+    needs: build
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/download-artifact@v4
+        with: { path: release }
+      - name: Create checksums and manifest
+        run: |
+          cd release
+          find . -type f -not -name SHA256SUMS -print0 | xargs -0 sha256sum > SHA256SUMS
+          version="${GITHUB_REF_NAME#v}"
+          printf '{"version":"%s","assets":{"release":"https://github.com/%s/releases/tag/%s"}}\n' "$version" "$GITHUB_REPOSITORY" "$GITHUB_REF_NAME" > latest.json
+      - uses: softprops/action-gh-release@v2
+        with:
+          files: release/**

@@ -1,0 +1,12 @@
+name: android-compat-scout
+arch: amd64
+platform: linux
+version: 0.1.0
+section: utils
+priority: optional
+maintainer: Param Factory
+description: Private Android compatibility snapshots and regression reports
+license: MIT
+contents:
+  - src: ./target/release/compat-scout
+    dst: /usr/bin/compat-scout

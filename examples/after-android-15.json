@@ -1,0 +1,11 @@
+{
+  "format": "android-compat-scout/snapshot-1",
+  "captured_at": "2025-02-02T09:45:00Z",
+  "source": "sample data",
+  "device": {"manufacturer":"Example","model":"RoadLink One","android_release":"15","sdk":"35","build_fingerprint":"example/…","adb_state":"device"},
+  "connectivity": {"usb_mode":"mCurrentFunctions: adb","wifi_state":"enabled","wifi_ssid_present":false,"adb_transport":"USB debugging (authorized)"},
+  "apps": [
+    {"package":"me.aap.fermata.auto","version":"1.10.2","installed":true,"permissions":{"android.permission.ACCESS_FINE_LOCATION":"denied","android.permission.POST_NOTIFICATIONS":"granted"}}
+  ],
+  "notes": ["Sample data contains no personal device details."]
+}

@@ -4,3 +4,5 @@ dist/
 *.log
 graphify-out/
 .DS_Store
+target/
+site/dist/

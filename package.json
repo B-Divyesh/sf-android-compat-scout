@@ -1,0 +1,14 @@
+{
+  "name": "android-compat-scout-site",
+  "private": true,
+  "version": "0.1.0",
+  "type": "module",
+  "scripts": {
+    "build:site": "vite build --outDir ../dist/site",
+    "build": "npm run build:site && cargo build --release",
+    "test": "cargo test && node scripts/test.mjs",
+    "test:claims": "npm test -- --grep @claim",
+    "preview": "vite preview --host 127.0.0.1"
+  },
+  "devDependencies": {"vite": "^7.1.9", "vitest": "^3.2.4"}
+}

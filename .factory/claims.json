@@ -1,0 +1,4 @@
+[
+  {"id":"sample-report","claim":"The bundled demo writes a categorized compatibility report.","where":"Demo page, README","test":"npm test -- --grep @claim:sample-report","sandbox":"fresh temporary directory; compat-scout demo --out-dir <temp>"},
+  {"id":"redacted-export","claim":"Sample exports contain no account, serial, Wi-Fi name, or MAC data.","where":"Landing privacy facts, README","test":"npm test -- --grep @claim:redacted-export","sandbox":"fresh clone; inspect bundled sample snapshot"}
+]

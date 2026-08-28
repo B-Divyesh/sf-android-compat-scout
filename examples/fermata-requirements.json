@@ -1,0 +1,10 @@
+{
+  "name": "Wireless local media setup",
+  "min_sdk": 29,
+  "needs_wifi": true,
+  "needs_usb_accessory": true,
+  "apps": [
+    {"package":"me.aap.fermata.auto","min_version":"1.9.0","permissions":["android.permission.ACCESS_FINE_LOCATION"]},
+    {"package":"com.example.wirelessbridge","min_version":"3.4.0","permissions":["android.permission.BLUETOOTH_CONNECT"]}
+  ]
+}
