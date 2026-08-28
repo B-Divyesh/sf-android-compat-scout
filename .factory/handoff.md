@@ -1,3 +1,13 @@
+# Adversarial review 2 handoff — FAIL
+
+Reviewed commit `52d83c141dbc98d920e22455c0d3983661f12176` and the live product on 2026-08-28 UTC without changing product code. The complete report is `.factory/review-2.md`.
+
+The cold 390×844 and desktop first screens pass, and the one-click demo works with realistic data, Reset, Start for real, same-origin requests, no console errors, and no observed browser persistence. All eleven exact claim commands and the full test/typecheck/browser/build/format/Clippy suite passed from `/tmp/android-compat-review2.vs1j5U/repo`. Live Axe reported zero violations on home, demo, privacy, terms, and 404 at mobile and desktop sizes; all crawled links returned 200 and unknown routes returned the designed HTTP 404.
+
+Verdict: **FAIL**. The Android “Download for this computer” action serves an incompatible Linux x64 binary and architecture guessing is unsafe. Earlier findings F-1-3, F-1-4, and F-1-5 are reopened because their passing claim tests still cover only part of the public checksum, distribution, and nothing-saved promises. The Windows half of the installer checksum claim is still source-text inspection rather than a behavior test. The README core capability and the landing/demo six-result statement are unlisted or undertested claims. Six minor plain-language findings remain. No product files were modified.
+
+---
+
 # Polish 1 repair handoff — PASS
 
 ## Completed repair
