@@ -35,7 +35,9 @@ The exact claim commands in `.factory/claims.json` all passed after `npm ci`. A 
 
 ## Release and deployment
 
-Tag `v0.1.2` is the release trigger. The static deployment artifact remains `dist/site`, preserving the original `cli-installers` plus static-site deployment class. The release and deployed-site verification results are appended here after the pushed tag’s GitHub Actions workflow finishes.
+Tag `v0.1.2` completed successfully in GitHub Actions run `33198625222` on 2026-08-28 UTC. The public release contains 15 assets: Linux x64/arm64 archives, macOS x64/arm64 archives and unsigned pkg files, a Windows zip, `.deb`, `.rpm`, `SHA256SUMS`, `latest.json`, a Scoop manifest, and a Homebrew formula. `latest.json` names a per-platform direct download URL. The x64 Linux archive checksum is `c4d2875a850ed6f64387259ddde3f2ca7687a0e967878b854d85eb0706156e4c`, verified against the public `SHA256SUMS` release asset. The repository’s Scoop and complete winget 0.1.2 manifest set use the released Windows zip checksum.
+
+The static deployment artifact remains `dist/site`, preserving the original `cli-installers` plus static-site deployment class. Main was pushed with the repaired static artifact and deployment configuration; no infrastructure or DNS was changed from this repository.
 
 ## Known limits
 

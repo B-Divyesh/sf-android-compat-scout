@@ -1,0 +1,13 @@
+PackageIdentifier: Sociobot.AndroidCompatScout
+PackageVersion: 0.1.2
+InstallerType: zip
+NestedInstallerType: portable
+NestedInstallerFiles:
+  - RelativeFilePath: compat-scout.exe
+    PortableCommandAlias: compat-scout
+Installers:
+  - Architecture: x64
+    InstallerUrl: https://github.com/B-Divyesh/sf-android-compat-scout/releases/download/v0.1.2/compat-scout-x86_64-pc-windows-msvc.zip
+    InstallerSha256: DF9F425237602DDC3A79ABCEB0DFEC4EBBF4655A928F5295DBCC5DDE28A8FCD9
+ManifestType: installer
+ManifestVersion: 1.6.0
