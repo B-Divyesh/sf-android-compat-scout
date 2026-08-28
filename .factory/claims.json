@@ -9,7 +9,7 @@
   {
     "id": "redacted-export",
     "claim": "Collected exports omit serial, Wi-Fi name, and MAC data.",
-    "where": "Landing privacy facts, README",
+    "where": "Landing privacy facts, Privacy page, README",
     "test": "npm test -- --grep @claim:redacted-export",
     "sandbox": "fake ADB collector; run snapshot and inspect the serialized output for sensitive values"
   },
@@ -21,11 +21,32 @@
     "sandbox": "fresh temporary directory; run the binary from a consumer working directory"
   },
   {
+    "id": "local-installed-release",
+    "claim": "Runs on your computer from a downloaded release and can run its bundled demo from any folder.",
+    "where": "Landing privacy facts, landing install section, README",
+    "test": "npm test -- --grep @claim:local-installed-release",
+    "sandbox": "fresh consumer directory; download the public Linux release, verify its published SHA-256, then run compat-scout demo with no repository checkout"
+  },
+  {
     "id": "checksum-installers",
     "claim": "The Windows and Unix installers check SHA-256 before placing a binary on PATH.",
     "where": "Landing install section, README",
     "test": "npm test -- --grep @claim:checksum-installers",
     "sandbox": "mock release download; run the Unix installer with matching and mismatching SHA-256 data before checking its install location"
+  },
+  {
+    "id": "release-download-checksums",
+    "claim": "Release downloads include checksums.",
+    "where": "Landing privacy facts, README",
+    "test": "npm test -- --grep @claim:release-download-checksums",
+    "sandbox": "download public SHA256SUMS and Linux archive; hash the archive and compare its published entry"
+  },
+  {
+    "id": "release-distribution",
+    "claim": "The published release provides the documented platform packages, checksum metadata, Homebrew formula, Scoop manifest, and owner-ready winget manifest; macOS and Windows builds are unsigned.",
+    "where": "README Install and Develop sections",
+    "test": "npm test -- --grep @claim:release-distribution",
+    "sandbox": "GitHub release API and public formula/Scoop downloads; inspect the repository winget manifest and unsigned release workflow"
   },
   {
     "id": "benchmark-12-of-15",
@@ -37,15 +58,22 @@
   {
     "id": "read-only-diagnosis",
     "claim": "Compat Scout reports facts and does not change the connected device.",
-    "where": "Landing safety section, README",
+    "where": "Landing safety section, Terms page, README",
     "test": "npm test -- --grep @claim:read-only-diagnosis",
     "sandbox": "inspect the collector command allow-list for read-only ADB operations"
   },
   {
     "id": "demo-storage-isolation",
     "claim": "Demo — sample data, nothing is saved.",
-    "where": "Demo banner, .factory/demo.md",
+    "where": "Demo banner, README, .factory/demo.md",
     "test": "npm test -- --grep @claim:demo-storage-isolation",
     "sandbox": "fresh browser context at /demo; reset and leave the demo while asserting no real or demo storage is persisted"
+  },
+  {
+    "id": "cli-interface-options",
+    "claim": "The snapshot, compare, check, and demo commands provide help and accept --json for scripting.",
+    "where": "README Use section",
+    "test": "npm test -- --grep @claim:cli-interface-options",
+    "sandbox": "run compat-scout --help and each listed subcommand --help in a clean build"
   }
 ]

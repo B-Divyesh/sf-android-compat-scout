@@ -61,6 +61,60 @@ esac
     }
   }, 60_000);
 
+  test('@claim:local-installed-release downloaded public Linux release runs its bundled demo from a consumer folder', () => {
+    const work = mkdtempSync(join(tmpdir(), 'compat-scout-public-release-'));
+    const asset = 'compat-scout-x86_64-unknown-linux-musl.tar.gz';
+    const base = 'https://github.com/B-Divyesh/sf-android-compat-scout/releases/download/v0.1.2';
+    try {
+      execFileSync('curl', ['-fsSL', `${base}/SHA256SUMS`, '-o', join(work, 'SHA256SUMS')]);
+      execFileSync('curl', ['-fsSL', `${base}/${asset}`, '-o', join(work, asset)]);
+      const sums = readFileSync(join(work, 'SHA256SUMS'), 'utf8');
+      const expected = sums.match(new RegExp(`^([a-f0-9]{64})  ${asset.replace(/[.]/g, '\\.')}$`, 'm'))?.[1];
+      expect(expected).toBeTruthy();
+      expect(createHash('sha256').update(readFileSync(join(work, asset))).digest('hex')).toBe(expected);
+      execFileSync('tar', ['-xzf', join(work, asset), '-C', work]);
+      const consumer = join(work, 'consumer');
+      mkdirSync(consumer);
+      const output = execFileSync(join(work, 'compat-scout'), ['demo', '--json'], { cwd: consumer, encoding: 'utf8' });
+      const result = JSON.parse(output);
+      expect(existsSync(join(result.out_dir, 'compat-report.json'))).toBe(true);
+      expect(existsSync(join(result.out_dir, 'compat-check.json'))).toBe(true);
+      rmSync(result.out_dir, { recursive: true, force: true });
+    } finally {
+      rmSync(work, { recursive: true, force: true });
+    }
+  }, 60_000);
+
+  test('@claim:release-download-checksums public release asset matches its published SHA-256 entry', () => {
+    const work = mkdtempSync(join(tmpdir(), 'compat-scout-release-checksum-'));
+    const asset = 'compat-scout-x86_64-unknown-linux-musl.tar.gz';
+    const base = 'https://github.com/B-Divyesh/sf-android-compat-scout/releases/download/v0.1.2';
+    try {
+      execFileSync('curl', ['-fsSL', `${base}/SHA256SUMS`, '-o', join(work, 'SHA256SUMS')]);
+      execFileSync('curl', ['-fsSL', `${base}/${asset}`, '-o', join(work, asset)]);
+      const expected = readFileSync(join(work, 'SHA256SUMS'), 'utf8').match(new RegExp(`^([a-f0-9]{64})  ${asset.replace(/[.]/g, '\\.')}$`, 'm'))?.[1];
+      expect(expected).toBeTruthy();
+      expect(createHash('sha256').update(readFileSync(join(work, asset))).digest('hex')).toBe(expected);
+    } finally {
+      rmSync(work, { recursive: true, force: true });
+    }
+  }, 60_000);
+
+  test('@claim:release-distribution public release publishes the documented assets, tap formula, and Scoop manifest', () => {
+    const release = JSON.parse(execFileSync('curl', ['-fsSL', 'https://api.github.com/repos/B-Divyesh/sf-android-compat-scout/releases/tags/v0.1.2'], { encoding: 'utf8' }));
+    const names = release.assets.map((asset: { name: string }) => asset.name);
+    for (const name of ['SHA256SUMS', 'latest.json', 'compat-scout-x86_64-unknown-linux-musl.tar.gz', 'compat-scout-x86_64-pc-windows-msvc.zip', 'android-compat-scout_0.1.2_amd64.deb', 'android-compat-scout-0.1.2-1.x86_64.rpm', 'android-compat-scout-aarch64-apple-darwin.pkg', 'android-compat-scout.json']) expect(names).toContain(name);
+    const formula = execFileSync('curl', ['-fsSL', 'https://raw.githubusercontent.com/B-Divyesh/homebrew-android-compat-scout/main/Formula/android-compat-scout.rb'], { encoding: 'utf8' });
+    expect(formula).toContain('class AndroidCompatScout < Formula');
+    expect(formula).toContain('releases/download/v0.1.2');
+    const scoop = execFileSync('curl', ['-fsSL', 'https://github.com/B-Divyesh/sf-android-compat-scout/releases/download/v0.1.2/android-compat-scout.json'], { encoding: 'utf8' });
+    expect(JSON.parse(scoop).architecture['64bit'].bin).toBe('compat-scout.exe');
+    expect(readFileSync(join(process.cwd(), 'winget', 'android-compat-scout', '0.1.2', 'Sociobot.AndroidCompatScout.yaml'), 'utf8')).toContain('PackageVersion: 0.1.2');
+    const workflow = readFileSync(join(process.cwd(), '.github', 'workflows', 'release.yml'), 'utf8');
+    expect(workflow).toContain('pkgbuild --root');
+    expect(workflow).not.toMatch(/codesign|signtool|WINDOWS_CERT_PFX|APPLE_CERTIFICATE/);
+  }, 60_000);
+
   test('@claim:checksum-installers Unix installer rejects a bad checksum before placement', () => {
     const sandbox = mkdtempSync(join(tmpdir(), 'compat-scout-installer-'));
     const release = join(sandbox, 'release');
@@ -109,5 +163,17 @@ cp "$FIXTURE_RELEASE/$(basename "$url")" "$out"
     expect(source).not.toMatch(/\b(root|install|uninstall|disable-user|enable|setprop)\b/);
     expect(source).toContain('dumpsys');
     expect(source).toContain('getprop');
+  });
+
+  test('@claim:cli-interface-options documented commands provide help and accept --json', () => {
+    for (const command of ['snapshot', 'compare', 'check', 'demo']) {
+      const help = execFileSync('cargo', ['run', '--quiet', '--', command, '--help'], { cwd: process.cwd(), encoding: 'utf8' });
+      expect(help).toContain('--json');
+    }
+    const rootHelp = execFileSync('cargo', ['run', '--quiet', '--', '--help'], { cwd: process.cwd(), encoding: 'utf8' });
+    expect(rootHelp).toContain('snapshot');
+    expect(rootHelp).toContain('compare');
+    expect(rootHelp).toContain('check');
+    expect(rootHelp).toContain('demo');
   });
 });

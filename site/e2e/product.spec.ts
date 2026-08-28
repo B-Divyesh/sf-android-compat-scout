@@ -9,6 +9,8 @@ test('desktop landing has no console errors and detects a release asset link', a
   await page.goto('/');
   await expect(page.getByRole('heading', { level: 1 })).toHaveText('Find what broke your Android setup');
   await expect(page.locator('#platform-download')).toHaveAttribute('href', /compat-scout-x86_64-unknown-linux-musl\.tar\.gz$/);
+  await expect(page.locator('.install code')).toContainText('https://android-compat-scout.sociobot.in/install.sh');
+  await expect(page.locator('.install code')).not.toContainText('--path .');
   expect(errors).toEqual([]);
 });
 
@@ -16,7 +18,7 @@ test('mobile demo is keyboard-focusable and has no serious axe findings', async 
   await page.setViewportSize({ width: 390, height: 844 });
   await page.goto('/');
   await page.getByRole('link', { name: 'Try it with sample data' }).press('Enter');
-  await expect(page).toHaveURL(/\/demo$/);
+  await expect(page).toHaveURL(/\?demo=1$/);
   await expect(page.getByRole('heading', { level: 1 })).toBeFocused();
   await expect(page.locator('.demo-page pre')).toHaveAttribute('tabindex', '0');
   const results = await new AxeBuilder({ page: page as never }).analyze();
@@ -33,8 +35,8 @@ test('demo has no third-party requests and navigation links meet touch-target he
   expect(heights.every((height) => height >= 44)).toBe(true);
 });
 
-test('@claim:demo-storage-isolation demo does not persist sample or real data', async ({ page }) => {
-  await page.goto('/demo');
+test('@claim:demo-storage-isolation ?demo=1 demo does not persist sample or real data', async ({ page }) => {
+  await page.goto('/?demo=1');
   const storageKeys = () => page.evaluate(() => ({
     local: Object.keys(localStorage),
     session: Object.keys(sessionStorage),
@@ -46,4 +48,20 @@ test('@claim:demo-storage-isolation demo does not persist sample or real data', 
   await page.getByRole('link', { name: 'Start for real' }).click();
   await expect(page).toHaveURL(/\/$/);
   expect(await storageKeys()).toEqual({ local: [], session: [] });
+});
+
+test('each real route supplies its own canonical, description, and social metadata', async ({ page }) => {
+  const expected = [
+    ['/', 'https://android-compat-scout.sociobot.in/', 'Find Android update changes that affect a customized phone or vehicle dongle.'],
+    ['/demo', 'https://android-compat-scout.sociobot.in/demo', 'See a sample Android upgrade report without connecting a phone or saving data.'],
+    ['/privacy', 'https://android-compat-scout.sociobot.in/privacy', 'Learn which Android device facts Compat Scout reads and which identifiers it omits.'],
+    ['/terms', 'https://android-compat-scout.sociobot.in/terms', 'Read the safe-use terms for Android Compat Scout.'],
+  ] as const;
+  for (const [path, canonical, description] of expected) {
+    await page.goto(path);
+    await expect(page.locator('link[rel="canonical"]')).toHaveAttribute('href', canonical);
+    await expect(page.locator('meta[name="description"]')).toHaveAttribute('content', description);
+    await expect(page.locator('meta[property="og:description"]')).toHaveAttribute('content', description);
+    await expect(page.locator('meta[name="twitter:description"]')).toHaveAttribute('content', description);
+  }
 });

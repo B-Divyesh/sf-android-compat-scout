@@ -1,0 +1,1 @@
+Find Android setup changes after an update with a local compatibility report.

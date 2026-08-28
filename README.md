@@ -2,7 +2,7 @@
 
 Find what broke your Android setup.
 
-Android Compat Scout is for owners of customized Android phones, vehicle dongles, and local apps. It collects a consented ADB snapshot, checks declared requirements, and compares a before/after pair into a JSON report.
+Android Compat Scout is for owners of customized Android phones and vehicle dongles. It collects a consented ADB snapshot, checks declared requirements, and compares a before/after pair into a JSON report.
 
 ## Install
 
@@ -24,7 +24,7 @@ Homebrew users can install the published tap:
 brew install B-Divyesh/android-compat-scout/android-compat-scout
 ```
 
-The release also includes a Scoop manifest; winget manifests under `winget/` are ready for owner submission.
+The release also includes a Scoop manifest. Winget manifests under `winget/` are ready for owner submission.
 
 For local development only, install from the checkout with `cargo install --path .`.
 
@@ -45,7 +45,7 @@ Use a requirement file when you know which app, permissions, and device roles ma
 compat-scout check after.json examples/fermata-requirements.json
 ```
 
-`compat-scout --help` documents each command. The snapshot, compare, check, and demo commands accept `--json` for scripting.
+`compat-scout --help` lists each command. The snapshot, compare, check, and demo commands accept `--json` for scripting.
 
 ## Try the bundled sample
 
@@ -55,7 +55,7 @@ No phone is needed:
 compat-scout demo
 ```
 
-The binary embeds the invented snapshots and requirement file, so this works after installation from any directory. It prints a persistent temporary output directory containing `compat-report.json` and `compat-check.json`. The browser demo is at `/demo`; it uses only sample data. See [.factory/demo.md](.factory/demo.md).
+The binary embeds the invented snapshots and requirement file, so this works after installation from any directory. It prints a persistent temporary output directory containing `compat-report.json` and `compat-check.json`. The browser demo is at `/?demo=1` (also `/demo`); it uses only sample data. See [.factory/demo.md](.factory/demo.md).
 
 ## Compatibility benchmark
 
