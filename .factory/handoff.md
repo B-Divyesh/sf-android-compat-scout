@@ -1,28 +1,31 @@
-# Android Compat Scout — polish 4 handoff
+# Android Compat Scout — review 5 handoff
 
 ## Outcome
 
-Commit `056154783698b109a254f605111c2c3dd8cda65a` closes every finding in reviews 1–4. It repairs desktop first-screen visibility, explicit Install-anchor navigation, history scroll restoration, the sample-report heading, and connectivity terminology without changing the blueprint drafting-sheet identity. It is pushed to `origin/main` and deployed through the static work-order configuration as deployment `1f4a0178-4a88-49e7-b07c-c12926359f1c`.
+Completed the independent adversarial review without modifying product code. Review 5 is **PASS**: no blocking, high, medium, or minor findings remain.
 
-## Run and verify
+The full evidence, complete landing/README copy audit, all 19 claim results, demo-isolation result, route/link checks, and verification of every review 1–4 finding are in `.factory/review-5.md`.
+
+## How verified
+
+Fresh clone: `/tmp/android-compat-scout-review-5.OizoG1/repo` at `c750245f4576a8e9dd908aa50a47189699f5e8d2`.
 
 ```sh
 npm ci
+# every exact command from .factory/claims.json (19/19 passed)
 npm test
 npm run typecheck
-npm run test:browser
 npm run build
 cargo fmt --check
 cargo clippy --all-targets -- -D warnings
-cargo package --allow-dirty
+npm run test:browser
+PLAYWRIGHT_BASE_URL=https://android-compat-scout.sociobot.in npm run test:browser
 ```
 
-The static site output is `dist/site`. The CLI demo is `compat-scout demo`; the direct isolated web demo is `https://android-compat-scout.sociobot.in/?demo=1` (also `/demo`). `?demo=1` does not touch real browser storage and provides Reset demo and Start for real.
+All commands passed. The build output is `dist/site`; browser suites passed 12/12 locally and 12/12 against production.
 
-Fresh-clone evidence: `/tmp/android-compat-scout-polish-4.8BpT0o/repo` at the repair commit passed `npm ci` with zero vulnerabilities, every exact command in all 19 claim entries, aggregate claim tests (18 Vitest + 1 Rust benchmark), typecheck, browser tests (12/12), build, format, Clippy, and package checks.
-
-Production evidence: `verify-url.sh` passed with a 636 ms cold load, no console errors, valid title/lang/h1/main/alt/button checks. The live browser suite passed 12/12. `/`, `/demo`, `/privacy`, `/terms`, installers, robots, and sitemap return 200; a made-up path returns 404. Mobile Lighthouse scored performance 100, accessibility 100, SEO 100, LCP 1061 ms, CLS 0. Screenshots and JSON reports are under `/tmp/android-compat-scout-polish-4-evidence/live/`.
+Manual live checks used fresh 390×844 and 1440×900 contexts. The direct demo route is `https://android-compat-scout.sociobot.in/?demo=1` (also `/demo`). Its storage isolation was confirmed with seeded localStorage, sessionStorage, IndexedDB, and cookie sentinels, as well as request logging.
 
 ## Known gaps / next steps
 
-None. The current static deployment and v0.1.3 CLI release are release-ready. A future CLI feature change should use a new `v*` tag so the GitHub Actions release workflow rebuilds platform artifacts.
+None at review time. Preserve the claims and production browser coverage whenever changing release behavior, demo behavior, routing, or visitor-facing copy.
