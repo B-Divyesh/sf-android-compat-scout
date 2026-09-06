@@ -1,31 +1,45 @@
-# Android Compat Scout — review 5 handoff
+# Android Compat Scout — review 6 handoff
 
-## Outcome
+## Result
 
-Completed the independent adversarial review without modifying product code. Review 5 is **PASS**: no blocking, high, medium, or minor findings remain.
+Review 6 is **FAIL** with one blocking finding and one untested claim. Product code was not modified.
 
-The full evidence, complete landing/README copy audit, all 19 claim results, demo-isolation result, route/link checks, and verification of every review 1–4 finding are in `.factory/review-5.md`.
+The public `/install.sh` is labeled for Linux and macOS but always calls `sha256sum`. Clean macOS provides `shasum`, so the advertised one-line macOS install path exits before installation. The `@claim:checksum-unix-installer` test passes only on its Linux branch and does not cover this path.
 
-## How verified
+The full report is `.factory/review-6.md`.
 
-Fresh clone: `/tmp/android-compat-scout-review-5.OizoG1/repo` at `c750245f4576a8e9dd908aa50a47189699f5e8d2`.
+## Reviewed versions
+
+- Implementation candidate: `056154783698b109a254f605111c2c3dd8cda65a`
+- Documentation checkout: `42b8596b91c9d8fd65fb9fc5eba8aac7069dd05c`
+- Public CLI release: `v0.1.3`
+- Live URL: <https://android-compat-scout.sociobot.in>
+
+The live HTML and hashed assets match the clean build. The live installer is byte-identical to the candidate installer.
+
+## Verification
+
+From clean checkout `/tmp/android-compat-scout-review-6.4ES1Zz/repo`:
 
 ```sh
 npm ci
-# every exact command from .factory/claims.json (19/19 passed)
+# every exact .factory/claims.json command separately: 19/19 exited successfully
 npm test
 npm run typecheck
 npm run build
 cargo fmt --check
 cargo clippy --all-targets -- -D warnings
+cargo package --allow-dirty
 npm run test:browser
 PLAYWRIGHT_BASE_URL=https://android-compat-scout.sociobot.in npm run test:browser
 ```
 
-All commands passed. The build output is `dist/site`; browser suites passed 12/12 locally and 12/12 against production.
+The full suite passed 19 unit/claim tests. Local and live browser suites passed 12/12. The live URL check had no console error, and Axe CLI found zero violations. Mobile Lighthouse scored 100 in all four categories, with LCP 1,126 ms, TBT 60 ms, CLS 0, and 64,779 transferred bytes.
 
-Manual live checks used fresh 390×844 and 1440×900 contexts. The direct demo route is `https://android-compat-scout.sociobot.in/?demo=1` (also `/demo`). Its storage isolation was confirmed with seeded localStorage, sessionStorage, IndexedDB, and cookie sentinels, as well as request logging.
+The downloaded Linux release passed checksum, demo, JSON, identical-snapshot, malformed-input, missing-ADB, recovery, help, and version checks from a clean consumer directory. Fresh phone and desktop demo flows preserved real browser data and made no third-party request or download. The designed unknown route returned the expected 404 and remained usable.
 
-## Known gaps / next steps
+Evidence is under `/work/.evidence/review-6/`.
 
-None at review time. Preserve the claims and production browser coverage whenever changing release behavior, demo behavior, routing, or visitor-facing copy.
+## Required next step
+
+Update `install.sh` to use checksum tooling available on both Linux and macOS. Add a Darwin-path test with `shasum` available and `sha256sum` absent. After redeployment, rerun every claim command and the live installer check before declaring PASS.
