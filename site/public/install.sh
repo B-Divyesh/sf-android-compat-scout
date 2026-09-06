@@ -9,7 +9,14 @@ base="https://github.com/$repo/releases/latest/download"
 tmp="$(mktemp -d)"; trap 'rm -rf "$tmp"' EXIT
 curl -fsSL "$base/SHA256SUMS" -o "$tmp/SHA256SUMS"
 curl -fsSL "$base/$asset" -o "$tmp/$asset"
-(cd "$tmp" && grep " $asset$" SHA256SUMS | sha256sum -c -)
+if command -v sha256sum >/dev/null 2>&1; then
+  (cd "$tmp" && grep " $asset$" SHA256SUMS | sha256sum -c -)
+elif command -v shasum >/dev/null 2>&1; then
+  (cd "$tmp" && grep " $asset$" SHA256SUMS | shasum -a 256 -c -)
+else
+  echo "No SHA-256 checksum tool found. Install sha256sum or shasum, then try again." >&2
+  exit 1
+fi
 mkdir -p "$HOME/.local/bin"; tar -xzf "$tmp/$asset" -C "$tmp"
 install "$tmp/compat-scout" "$HOME/.local/bin/compat-scout"
 echo "Installed compat-scout in $HOME/.local/bin. Add it to PATH if needed."

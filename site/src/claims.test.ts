@@ -1,5 +1,5 @@
 import { execFileSync } from 'node:child_process';
-import { chmodSync, existsSync, mkdtempSync, mkdirSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
+import { chmodSync, existsSync, mkdtempSync, mkdirSync, readFileSync, rmSync, symlinkSync, writeFileSync } from 'node:fs';
 import { createHash } from 'node:crypto';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
@@ -386,19 +386,31 @@ describe('sandbox claims', () => {
     expect(workflow).not.toMatch(/codesign|signtool|WINDOWS_CERT_PFX|APPLE_CERTIFICATE/);
   }, 60_000);
 
-  test('@claim:checksum-unix-installer Unix installer rejects a bad checksum before placement', () => {
+  test('@claim:checksum-unix-installer Unix installer verifies Linux and macOS downloads before placement', () => {
     const sandbox = mkdtempSync(join(tmpdir(), 'compat-scout-installer-'));
     const release = join(sandbox, 'release');
-    const mockBin = join(sandbox, 'mock-bin');
-    const asset = 'compat-scout-x86_64-unknown-linux-musl.tar.gz';
     const home = join(sandbox, 'home');
-    mkdirSync(release); mkdirSync(mockBin); mkdirSync(home);
+    mkdirSync(release); mkdirSync(home);
     writeFileSync(join(sandbox, 'compat-scout'), '#!/bin/sh\necho fixture\n');
     chmodSync(join(sandbox, 'compat-scout'), 0o755);
-    execFileSync('tar', ['-czf', join(release, asset), '-C', sandbox, 'compat-scout']);
-    const hash = createHash('sha256').update(readFileSync(join(release, asset))).digest('hex');
-    writeFileSync(join(release, 'SHA256SUMS'), `${hash}  ${asset}\n`);
-    writeFileSync(join(mockBin, 'curl'), `#!/bin/sh
+    const assets = {
+      Linux: 'compat-scout-x86_64-unknown-linux-musl.tar.gz',
+      Darwin: 'compat-scout-x86_64-apple-darwin.tar.gz',
+    } as const;
+    for (const asset of Object.values(assets)) {
+      execFileSync('tar', ['-czf', join(release, asset), '-C', sandbox, 'compat-scout']);
+    }
+
+    const makePath = (platform: keyof typeof assets, checksumTool?: 'sha256sum' | 'shasum') => {
+      const mockBin = join(sandbox, `${platform.toLowerCase()}-${checksumTool ?? 'no-checksum'}-bin`);
+      mkdirSync(mockBin);
+      writeFileSync(join(mockBin, 'uname'), `#!/bin/sh
+case "$1" in
+  -s) printf '${platform}\\n' ;;
+  -m) printf 'x86_64\\n' ;;
+esac
+`);
+      writeFileSync(join(mockBin, 'curl'), `#!/bin/sh
 url=''; out=''; next=0
 for arg in "$@"; do
   if [ "$next" = 1 ]; then out="$arg"; next=0; continue; fi
@@ -406,14 +418,57 @@ for arg in "$@"; do
 done
 cp "$FIXTURE_RELEASE/$(basename "$url")" "$out"
 `);
-    chmodSync(join(mockBin, 'curl'), 0o755);
-    const env = { ...process.env, PATH: `${mockBin}:${process.env.PATH}`, FIXTURE_RELEASE: release, HOME: home };
+      chmodSync(join(mockBin, 'uname'), 0o755);
+      chmodSync(join(mockBin, 'curl'), 0o755);
+      for (const command of ['basename', 'cp', 'grep', 'gzip', 'install', 'mkdir', 'mktemp', 'rm', 'tar', 'tr']) {
+        const target = execFileSync('which', [command], { encoding: 'utf8' }).trim();
+        symlinkSync(target, join(mockBin, command));
+      }
+      if (checksumTool) {
+        const target = execFileSync('which', [checksumTool], { encoding: 'utf8' }).trim();
+        symlinkSync(target, join(mockBin, checksumTool));
+      }
+      return mockBin;
+    };
+
+    const mockPaths = {
+      Linux: makePath('Linux', 'sha256sum'),
+      Darwin: makePath('Darwin', 'shasum'),
+      DarwinWithoutChecksum: makePath('Darwin'),
+    };
+    const runInstaller = (platform: keyof typeof assets, path: string) => execFileSync(
+      '/bin/sh',
+      [join(process.cwd(), 'site', 'public', 'install.sh')],
+      {
+        env: { PATH: path, FIXTURE_RELEASE: release, HOME: home },
+        encoding: 'utf8',
+      },
+    );
+
     try {
-      execFileSync('sh', [join(process.cwd(), 'site', 'public', 'install.sh')], { env, stdio: 'pipe' });
-      expect(existsSync(join(home, '.local', 'bin', 'compat-scout'))).toBe(true);
-      rmSync(join(home, '.local'), { recursive: true, force: true });
-      writeFileSync(join(release, 'SHA256SUMS'), `00${hash.slice(2)}  ${asset}\n`);
-      expect(() => execFileSync('sh', [join(process.cwd(), 'site', 'public', 'install.sh')], { env, stdio: 'pipe' })).toThrow();
+      for (const platform of ['Linux', 'Darwin'] as const) {
+        const asset = assets[platform];
+        const hash = createHash('sha256').update(readFileSync(join(release, asset))).digest('hex');
+        writeFileSync(join(release, 'SHA256SUMS'), `${hash}  ${asset}\n`);
+        expect(runInstaller(platform, mockPaths[platform])).toContain('Installed compat-scout');
+        expect(readFileSync(join(home, '.local', 'bin', 'compat-scout'), 'utf8')).toContain('echo fixture');
+        rmSync(join(home, '.local'), { recursive: true, force: true });
+
+        writeFileSync(join(release, 'SHA256SUMS'), `00${hash.slice(2)}  ${asset}\n`);
+        expect(() => runInstaller(platform, mockPaths[platform])).toThrow();
+        expect(existsSync(join(home, '.local', 'bin', 'compat-scout'))).toBe(false);
+      }
+
+      const macAsset = assets.Darwin;
+      const macHash = createHash('sha256').update(readFileSync(join(release, macAsset))).digest('hex');
+      writeFileSync(join(release, 'SHA256SUMS'), `${macHash}  ${macAsset}\n`);
+      let missingToolError = '';
+      try {
+        runInstaller('Darwin', mockPaths.DarwinWithoutChecksum);
+      } catch (error) {
+        missingToolError = String((error as { stderr?: string }).stderr ?? error);
+      }
+      expect(missingToolError).toContain('No SHA-256 checksum tool found');
       expect(existsSync(join(home, '.local', 'bin', 'compat-scout'))).toBe(false);
     } finally {
       rmSync(sandbox, { recursive: true, force: true });

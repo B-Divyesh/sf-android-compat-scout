@@ -60,7 +60,7 @@
     "claim": "The Unix installer checks SHA-256 before placing a binary on PATH.",
     "where": "Landing install section, README",
     "test": "npm test -- --grep @claim:checksum-unix-installer",
-    "sandbox": "mock release download; execute install.sh with matching and mismatching hashes and inspect the destination"
+    "sandbox": "mock release download; execute Linux with sha256sum and macOS with only shasum; reject bad hashes and a missing checksum tool before placement"
   },
   {
     "id": "checksum-windows-installer",
