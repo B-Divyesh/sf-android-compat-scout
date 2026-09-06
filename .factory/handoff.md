@@ -11,7 +11,7 @@ The outcome test executes the real installer in isolated Linux and Darwin-shaped
 - Implementation commit: `f5c113cb3c4cd7abd0a34b59f0599fc813cac491`
 - Previous implementation candidate: `056154783698b109a254f605111c2c3dd8cda65a`
 - Repair starting checkout: `8cd3e34915295e7c76f822bf496c781f4028c11e`
-- Handoff evidence commit: `HANDOFF_COMMIT_PENDING`
+- Handoff evidence commit: `16a80c8a3e2fd5fa26b6fdf5b1fecdda7207812f`
 - Public CLI release: `v0.1.3` (unchanged)
 - Static deployment: `bccb4dca-6577-4f2a-822e-557f4cb02ec0`
 - Live URL: <https://android-compat-scout.sociobot.in>
