@@ -1,22 +1,41 @@
-# Android Compat Scout — verification 4 handoff
+# Android Compat Scout — review 7 handoff
 
 ## Result
 
-**PASS.** Independent QA found zero product findings and zero untested public claims. The implementation reviewed is `f5c113cb3c4cd7abd0a34b59f0599fc813cac491`; the prior documentation SHA is `6b0f488e6b21ff949cc30aa002fc2e8a15b6f08e`. The latter differs only in factory handoff documentation.
+**PASS — zero findings at every severity and zero untested public claims.**
 
-The live static deployment is `bccb4dca-6577-4f2a-822e-557f4cb02ec0` at <https://android-compat-scout.sociobot.in>; it matches the fresh implementation build for public HTML, hashed assets, installers, robots, and sitemap. Public CLI release: `v0.1.3`.
+The implementation reviewed is
+`f5c113cb3c4cd7abd0a34b59f0599fc813cac491`. The documentation checkout is
+`281b72362cba4763156b0dff8cf3f0cbcfbdea7e`; commits after the implementation
+candidate change only `.factory` reports. The live product matches the fresh
+candidate build byte for byte for all public app assets and installers. Public
+CLI release: `v0.1.3`.
 
 ## What was verified
 
-- New clean checkout, `npm ci`, all 19 exact claim commands separately, and `npm test` passed.
-- `npm run typecheck`, `npm run build`, `cargo fmt --check`, `cargo clippy --all-targets -- -D warnings`, `cargo package --allow-dirty`, and local browser tests (12/12) passed.
-- Live browser tests (12/12) passed at desktop and phone widths. Fresh first-screen checks identify the job, audience, and sample action before scrolling. The one-click demo shows realistic Android 14-to-15 output, its persistent sample label, reset behavior, and Start-for-real exit.
-- The public Linux artifact was checksum-verified and exercised in a separate consumer folder through normal demo, zero-finding boundary, invalid JSON, missing ADB, and recovery paths.
-- The current `/install.sh` is byte-identical to the reviewed portable checksum implementation. Exact claim coverage includes valid/corrupt Linux and Darwin-shaped installs plus missing checksum-tool rejection.
-- Demo sentinels in localStorage, sessionStorage, IndexedDB, Cache Storage, and cookies remain unchanged. No sample download, real-data change, third-party request, or browser console error was observed.
-- Routes, legal pages, deliberate HTTP 404, keyboard/focus, reduced motion, 390 px/200% reflow, security headers, links, route metadata, and privacy behavior passed.
-- Playwright Axe found zero violations across home, demo, Privacy, Terms, and 404 at phone and desktop widths. The standalone Axe CLI could not start without system Chrome; its accepted Playwright-Axe alternative completed live.
-- Mobile Lighthouse: 99 Performance, 100 Accessibility, 100 Best Practices, 100 SEO; LCP 1,192 ms, TBT 124 ms, CLS 0.
+- A new clone ran `npm ci`, every one of the 19 exact claim commands
+  separately, and the complete test/build/lint/package gates. All passed.
+- Local and live Playwright suites passed 12/12. Fresh 1440×900 desktop and
+  390×844 phone contexts showed the job, audience, sample action, result, and
+  three facts before scrolling.
+- One click opened realistic Android 14-to-15 output. The sample label remained
+  visible; Reset restored altered output and focus; Start for real exited
+  without changing browser data.
+- The checksum-verified Linux release ran outside the checkout through normal,
+  zero-change boundary, invalid JSON, missing ADB, and recovery paths.
+- All published release assets matched checksums. Unix and Windows installer
+  checksum behavior, including the repaired macOS `shasum` path, passed.
+- Routes, metadata, links, deliberate HTTP 404, keyboard/focus, touch targets,
+  200% reflow, reduced motion, security headers, privacy, and same-origin demo
+  requests passed.
+- Playwright Axe found zero violations on every required route at phone and
+  desktop sizes. `verify-url.sh` passed with zero console errors. The standalone
+  Axe CLI was attempted but its bundled ChromeDriver did not match the
+  preinstalled Chromium; the Playwright Axe integration completed the scan.
+- Mobile Lighthouse: 100 Performance, 100 Accessibility, 100 Best Practices,
+  and 100 SEO; LCP 1,148 ms, TBT 0 ms, CLS 0, transfer 64,782 bytes.
+- Every finding from earlier reviews and verifications was rechecked and remains
+  closed. Review 7 introduced no finding.
 
 ## Run and verify
 
@@ -32,10 +51,21 @@ npm run test:browser
 PLAYWRIGHT_BASE_URL=https://android-compat-scout.sociobot.in npm run test:browser
 ```
 
-The complete report is `.factory/verification-4.md`. Local QA artifacts are in `/tmp/android-compat-scout-verify-4.5P245v/repo/.factory/evidence/verification-4/`; the required copies are `/work/.evidence/qa-report.md` and `/work/.evidence/qa-result.json`.
+The complete report is `.factory/review-7.md`. Fresh disposable evidence is
+under
+`/tmp/android-compat-scout-review-7.lSLyjE/repo/.factory/evidence/review-7/`.
+Required published copies are `/work/.evidence/qa-report.md` and
+`/work/.evidence/qa-result.json`.
 
 ## Known limits
 
-No physical Android phone or separate macOS host was available. Fake-authorized ADB checks cover collection/redaction and the Darwin installer branch executes real `shasum` in an isolated consumer environment. A physical OEM-device smoke test remains useful release follow-up, not a current defect.
+No physical Android phone, separate macOS host, or Windows host was available.
+Authorized fake ADB verifies collection and redaction. The real Linux artifact
+was exercised in a clean consumer folder, and the real installer scripts were
+executed with platform-shaped checksum tools and good/bad fixtures. A physical
+OEM-device smoke test remains useful release follow-up, not a current defect or
+an untested public claim.
 
-This is a static local-first CLI/documentation product. It has no backend, tenant data, account, analytics, payment, service-worker offline-reload promise, live API, health endpoint, or rate limit. Backend isolation, restart persistence, health, 429/Retry-After, billing, AI, and update checks do not apply.
+This is a static local-first CLI product. It has no backend, account, tenant
+store, analytics, payment flow, service worker, health endpoint, live API,
+rate-limit contract, or update checker, so those backend checks do not apply.
